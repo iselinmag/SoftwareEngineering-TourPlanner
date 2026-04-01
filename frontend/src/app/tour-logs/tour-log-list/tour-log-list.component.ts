@@ -10,5 +10,5 @@ export class TourLogList {
 
 }
 
-//hei
+
 
