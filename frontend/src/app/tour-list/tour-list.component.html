@@ -1,1 +1,15 @@
-<p>tour-list works!</p>
+<!--CHATGPT HTML Example-->
+<h3>Tours</h3>
+
+<div
+  class="tour-card"
+  *ngFor="let tour of tours"
+  (click)="selectTour(tour)"
+  [class.selected]="selectedTourId === tour.id"
+>
+  <h4>{{ tour.name }}</h4>
+  <p>{{ tour.description }}</p>
+  <p><strong>From:</strong> {{ tour.fromLocation }}</p>
+  <p><strong>To:</strong> {{ tour.toLocation }}</p>
+  <p><strong>Transport:</strong> {{ tour.transportType }}</p>
+</div>

@@ -1,10 +1,16 @@
-<!-- Sofie -->
- <div class="tour-log-container">
+<div class="tour-log-container">
   <h3>Tour Logs</h3>
 
-  <div class="log-card">
-    <p><strong>Date:</strong> 2026-04-02</p>
-    <p><strong>Rating:</strong> 4</p>
-    <p><strong>Comment:</strong> Nice route with great scenery.</p>
+  <p *ngIf="vm.filteredLogs().length === 0">
+    No logs for the selected tour.
+  </p>
+
+  <div class="log-card" *ngFor="let log of vm.filteredLogs()">
+    <p><strong>Date:</strong> {{ log.dateTime }}</p>
+    <p><strong>Rating:</strong> {{ log.rating }}</p>
+    <p><strong>Difficulty:</strong> {{ log.difficulty }}</p>
+    <p><strong>Comment:</strong> {{ log.comment }}</p>
+
+    <button (click)="vm.deleteLog(log.id!)">Delete</button>
   </div>
 </div>
