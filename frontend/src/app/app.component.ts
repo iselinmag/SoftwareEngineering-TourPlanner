@@ -6,7 +6,7 @@ import { RouterOutlet } from '@angular/router';
 
 import { TourList } from './tour-list/tour-list.component';
 import { TourDetails } from './tour-details/tour-details.component';
-import { TourLogList } from './tour-logs/tour-log-list/tour-log-list.component';
+import { TourLogList } from './tour-logs/tour-log.component';
 
 @Component({
   selector: 'app-root',
