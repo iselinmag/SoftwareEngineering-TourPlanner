@@ -1,20 +1,28 @@
 <div class="app-container">
-  <div class="top-section">
-    <aside class="sidebar">
-      <h2>Tour Planner</h2>
-      <app-tour-list></app-tour-list>
-    </aside>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Tour Planner</h1>
+      <p class="sidebar-subtitle">Manage tours and tour logs</p>
+    </div>
 
-    <main class="main-content">
+    <div class="sidebar-content">
+      <app-tour-list></app-tour-list>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="map-card">
       <div class="map-placeholder">
         <span class="map-placeholder-text">🗺️ Leaflet Map Placeholder</span>
       </div>
+    </div>
 
+    <div class="details-card">
       <app-tour-details></app-tour-details>
-    </main>
-  </div>
+    </div>
 
-  <section class="bottom-section">
-    <app-tour-log></app-tour-log>
-  </section>
+    <div class="logs-card">
+      <app-tour-log></app-tour-log>
+    </div>
+  </main>
 </div>

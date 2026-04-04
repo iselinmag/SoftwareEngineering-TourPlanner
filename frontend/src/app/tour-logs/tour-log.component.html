@@ -1,16 +1,104 @@
 <div class="tour-log-container">
   <h3>Tour Logs</h3>
 
-  <p *ngIf="vm.filteredLogs().length === 0">
-    No logs for the selected tour.
-  </p>
+  <div class="log-layout">
+    <div class="log-form-wrapper">
+      <div class="log-form">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="form.dateTime" />
+        </div>
 
-  <div class="log-card" *ngFor="let log of vm.filteredLogs()">
-    <p><strong>Date:</strong> {{ log.dateTime }}</p>
-    <p><strong>Rating:</strong> {{ log.rating }}</p>
-    <p><strong>Difficulty:</strong> {{ log.difficulty }}</p>
-    <p><strong>Comment:</strong> {{ log.comment }}</p>
+        <div class="form-group">
+          <label>Comment</label>
+          <input
+            type="text"
+            placeholder="Write a short comment"
+            [(ngModel)]="form.comment"
+          />
+        </div>
 
-    <button (click)="vm.deleteLog(log.id!)">Delete</button>
+        <div class="form-group">
+          <label>Difficulty</label>
+          <select [(ngModel)]="form.difficulty">
+            <option *ngFor="let difficulty of difficulties" [value]="difficulty">
+              {{ difficulty }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Total Distance (km)</label>
+          <input
+            type="number"
+            placeholder="e.g. 10"
+            [(ngModel)]="form.totalDistance"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Total Time</label>
+          <input
+            type="text"
+            placeholder="e.g. 01:30"
+            [(ngModel)]="form.totalTime"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Rating (1–5)</label>
+          <input
+            type="number"
+            min="1"
+            max="5"
+            [(ngModel)]="form.rating"
+          />
+        </div>
+
+        <div class="form-buttons">
+          <button (click)="saveLog()">
+            {{ isEditing ? 'Save Changes' : 'Add Log' }}
+          </button>
+
+          <button
+            class="secondary-button"
+            *ngIf="isEditing"
+            (click)="cancelEdit()"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <p class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </p>
+
+        <p class="error-message" *ngIf="form.rating < 1 || form.rating > 5">
+          Rating must be between 1 and 5
+        </p>
+      </div>
+    </div>
+
+    <div class="log-list">
+      <p class="empty-message" *ngIf="vm.filteredLogs().length === 0">
+        No logs for the selected tour.
+      </p>
+
+      <div class="log-card" *ngFor="let log of vm.filteredLogs()">
+        <p><strong>Date:</strong> {{ log.dateTime }}</p>
+        <p><strong>Comment:</strong> {{ log.comment }}</p>
+        <p><strong>Difficulty:</strong> {{ log.difficulty }}</p>
+        <p><strong>Total Distance:</strong> {{ log.totalDistance }} km</p>
+        <p><strong>Total Time:</strong> {{ log.totalTime }}</p>
+        <p><strong>Rating:</strong> {{ log.rating }}</p>
+
+        <div class="log-actions">
+          <button (click)="editLog(log)">Edit</button>
+          <button class="delete-button" (click)="vm.deleteLog(log.id!)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

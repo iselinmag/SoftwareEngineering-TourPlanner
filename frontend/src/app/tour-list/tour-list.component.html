@@ -1,5 +1,4 @@
-<!--CHATGPT HTML Example-->
-<h3>Tours</h3>
+<h3 class="section-title">Tours</h3>
 
 <div
   class="tour-card"
@@ -8,8 +7,13 @@
   [class.selected]="selectedTourId === tour.id"
 >
   <h4>{{ tour.name }}</h4>
-  <p>{{ tour.description }}</p>
-  <p><strong>From:</strong> {{ tour.fromLocation }}</p>
-  <p><strong>To:</strong> {{ tour.toLocation }}</p>
-  <p><strong>Transport:</strong> {{ tour.transportType }}</p>
+  <p class="tour-description">{{ tour.description }}</p>
+
+  <div class="tour-meta">
+    <p><strong>From:</strong> {{ tour.fromLocation }}</p>
+    <p><strong>To:</strong> {{ tour.toLocation }}</p>
+    <p><strong>Transport:</strong> {{ tour.transportType }}</p>
+    <p><strong>Distance:</strong> {{ tour.distance }} km</p>
+    <p><strong>Estimated Time:</strong> {{ tour.estimatedTime }}</p>
+  </div>
 </div>

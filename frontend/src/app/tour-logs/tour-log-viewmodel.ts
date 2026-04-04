@@ -21,6 +21,7 @@ export class TourLogViewmodel {
       totalTime: '01:30',
       rating: 4
     },
+
     {
       id: '2',
       tourId: 'tour2',
@@ -30,6 +31,39 @@ export class TourLogViewmodel {
       totalDistance: 20,
       totalTime: '03:00',
       rating: 5
+    },
+
+    {
+      id: '3',
+      tourId: 'tour3',
+      dateTime: '2026-04-03',
+      comment: 'Nice running route with good pace.',
+      difficulty: Difficulty.Medium,
+      totalDistance: 11,
+      totalTime: '01:04',
+      rating: 4
+    },
+
+    {
+    id: '4',
+    tourId: 'tour4',
+    dateTime: '2026-04-02',
+    comment: 'Beautiful views, but quite steep.',
+    difficulty: Difficulty.Hard,
+    totalDistance: 9,
+    totalTime: '02:20',
+    rating: 5
+    },
+
+    {
+    id: '5',
+    tourId: 'tour2',
+    dateTime: '2026-04-04',
+    comment: 'Smooth bike path and very enjoyable.',
+    difficulty: Difficulty.Easy,
+    totalDistance: 14,
+    totalTime: '01:08',
+    rating: 5
     }
   ]);
 

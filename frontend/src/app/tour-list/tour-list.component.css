@@ -1,17 +1,39 @@
+.section-title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
 .tour-card {
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
   cursor: pointer;
-  background: #f8f9fa;
+  background: #f8fafc;
+  transition: 0.2s ease;
 }
 
 .tour-card:hover {
-  background: #e9ecef;
+  background: #eef2f7;
+  transform: translateY(-1px);
 }
 
 .tour-card.selected {
-  border: 2px solid #0d6efd;
-  background: #eef5ff;
+  border: 2px solid #2563eb;
+  background: #eff6ff;
+}
+
+.tour-card h4 {
+  margin: 0 0 0.5rem;
+}
+
+.tour-description {
+  margin: 0 0 0.75rem;
+  color: #4b5563;
+}
+
+.tour-meta p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
 }
