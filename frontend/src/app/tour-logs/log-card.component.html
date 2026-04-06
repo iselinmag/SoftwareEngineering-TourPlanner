@@ -1,0 +1,13 @@
+<div class="log-card">
+  <p><strong>Date:</strong> {{ log.dateTime }}</p>
+  <p><strong>Comment:</strong> {{ log.comment }}</p>
+  <p><strong>Difficulty:</strong> {{ log.difficulty }}</p>
+  <p><strong>Total Distance:</strong> {{ log.totalDistance }} km</p>
+  <p><strong>Total Time:</strong> {{ log.totalTime }}</p>
+  <p><strong>Rating:</strong> {{ log.rating }}</p>
+
+  <div class="log-actions">
+    <button (click)="onEdit()">Edit</button>
+    <button class="delete-button" (click)="onDelete()">Delete</button>
+  </div>
+</div>

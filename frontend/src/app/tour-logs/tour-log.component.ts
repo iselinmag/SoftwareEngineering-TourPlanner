@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TourLogViewmodel } from './tour-log-viewmodel';
 import { Difficulty, TourLog } from '../models/tour-log.model';
+import { LogCardComponent } from './log-card.component';
 
 @Component({
   selector: 'app-tour-log',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LogCardComponent],
   templateUrl: './tour-log.component.html',
   styleUrl: './tour-log.component.css',
 })
@@ -32,27 +33,22 @@ export class TourLogList {
   saveLog() {
     this.errorMessage = '';
 
-    // ❗ viktig UX: må velge tour først
     if (!this.vm.selectedTourId()) {
       this.errorMessage = 'Please select a tour first.';
       return;
     }
 
-    // ❗ trim + fallback
-    const comment = this.form.comment.trim();
-
     const log: TourLog = {
       id: this.isEditing ? this.form.id : Date.now().toString(),
       tourId: this.vm.selectedTourId()!,
       dateTime: this.form.dateTime,
-      comment: comment,
+      comment: this.form.comment.trim(),
       difficulty: this.form.difficulty,
       totalDistance: Number(this.form.totalDistance),
       totalTime: this.form.totalTime,
       rating: Number(this.form.rating)
     };
 
-    // ❗ ekstra sikker validering
     if (!this.isFormValid(log)) {
       this.errorMessage =
         'Please fill all required fields correctly (rating 1–5, comment, date).';
@@ -83,6 +79,10 @@ export class TourLogList {
     this.errorMessage = '';
   }
 
+  deleteLog(id: string) {
+    this.vm.deleteLog(id);
+  }
+
   cancelEdit() {
     this.resetForm();
   }
@@ -102,7 +102,6 @@ export class TourLogList {
     this.errorMessage = '';
   }
 
-  // 🔥 bedre validering (sensor liker dette)
   private isFormValid(log: TourLog): boolean {
     return (
       !!log.dateTime &&

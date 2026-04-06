@@ -84,21 +84,12 @@
         No logs for the selected tour.
       </p>
 
-      <div class="log-card" *ngFor="let log of vm.filteredLogs()">
-        <p><strong>Date:</strong> {{ log.dateTime }}</p>
-        <p><strong>Comment:</strong> {{ log.comment }}</p>
-        <p><strong>Difficulty:</strong> {{ log.difficulty }}</p>
-        <p><strong>Total Distance:</strong> {{ log.totalDistance }} km</p>
-        <p><strong>Total Time:</strong> {{ log.totalTime }}</p>
-        <p><strong>Rating:</strong> {{ log.rating }}</p>
-
-        <div class="log-actions">
-          <button (click)="editLog(log)">Edit</button>
-          <button class="delete-button" (click)="vm.deleteLog(log.id!)">
-            Delete
-          </button>
-        </div>
-      </div>
+      <app-log-card
+        *ngFor="let log of vm.filteredLogs()"
+        [log]="log"
+        (edit)="editLog($event)"
+        (delete)="deleteLog($event)"
+      ></app-log-card>
     </div>
   </div>
 </div>
