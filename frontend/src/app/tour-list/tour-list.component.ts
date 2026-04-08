@@ -1,93 +1,55 @@
 
 // <Matej
 
-//!!!!!example code from chatgpt so youre connected to my tour-log viewmodel with THECORRECT ID
-
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourLogViewmodel } from '../tour-logs/tour-log-viewmodel';
+import { TourListViewmodel } from '../tour-list/tour-list-viewmodel';
 import { Tour, TransportType } from '../models/tour.model';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-tour-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './tour-list.component.html',
   styleUrl: './tour-list.component.css',
 })
 export class TourList {
-  tours: Tour[] = [
-  {
-    id: 'tour1',
-    name: 'Vienna City Walk',
-    description: 'A walk through the historic city center.',
-    fromLocation: 'Stephansplatz',
-    toLocation: 'Prater',
-    transportType: TransportType.Hike,
-    distance: 5,
-    estimatedTime: '01:30'
-  },
-  {
-    id: 'tour2',
-    name: 'Danube Riverside Ride',
-    description: 'A scenic bike ride along the Danube canal.',
-    fromLocation: 'Schwedenplatz',
-    toLocation: 'Donauinsel',
-    transportType: TransportType.Bike,
-    distance: 14,
-    estimatedTime: '01:10'
-  },
-  {
-    id: 'tour3',
-    name: 'Belvedere to Schönbrunn Run',
-    description: 'A longer running route connecting two major landmarks.',
-    fromLocation: 'Belvedere Palace',
-    toLocation: 'Schönbrunn Palace',
-    transportType: TransportType.Running,
-    distance: 11,
-    estimatedTime: '01:05'
-  },
-  {
-    id: 'tour4',
-    name: 'Vienna Woods Escape',
-    description: 'A relaxing outdoor hike in the Vienna Woods.',
-    fromLocation: 'Neuwaldegg',
-    toLocation: 'Kahlenberg',
-    transportType: TransportType.Hike,
-    distance: 9,
-    estimatedTime: '02:15'
-  },
-  {
-    id: 'tour5',
-    name: 'Weekend Lake Getaway',
-    description: 'A vacation-style trip to a nearby lake area.',
-    fromLocation: 'Vienna',
-    toLocation: 'Neusiedler See',
-    transportType: TransportType.Vacation,
-    distance: 60,
-    estimatedTime: '04:00'
-  },
-  {
-    id: 'tour6',
-    name: 'Museum Quarter Loop',
-    description: 'A short urban walk between cultural highlights.',
-    fromLocation: 'MuseumsQuartier',
-    toLocation: 'Karlsplatz',
-    transportType: TransportType.Hike,
-    distance: 3,
-    estimatedTime: '00:45'
-  }
-];
+  // Inject our ViewModels
+  listvm = inject(TourListViewmodel);
+  logVm = inject(TourLogViewmodel);
 
-  selectedTourId: string | null = null;
+  // Hide the form by default
+  isFormVisible = false
 
-  constructor(public logVm: TourLogViewmodel) {}
+  private fb = inject(FormBuilder) // we use it for Creating and updating tours
 
-  selectTour(tour: Tour) {
-    this.selectedTourId = tour.id ?? null;
+  // Create form structure
+  tourForm = this.fb.group({
+    id: [''],
+    name: ['', [Validators.required, Validators.minLength(3)]],
+    description: ['', Validators.required],
+    fromLocation: ['', Validators.required],
+    toLocation: ['', Validators.required],
+    transportType: [TransportType.Bike, Validators.required],
+    distance: [0, [Validators.required, Validators.min(0.1)]],
+    estimatedTime: ['', Validators.required]
+  });
 
+  transportTypes = Object.values(TransportType);
+
+  onTourClick(tour: Tour) {
     if (tour.id) {
-      this.logVm.setSelectedTour(tour.id);
+      this.listvm.selectTour(tour.id); // update list view
+      this.logVm.setSelectedTour(tour.id); // update log view
     }
+  }
+
+  addTour() {
+    if (this.tourForm.invalid) return;
+    const tourData = this.tourForm.value as Tour;
+    this.listvm.addTour(tourData); // Only Adds
+    this.tourForm.reset({ transportType: TransportType.Bike, distance: 0 }); // Reset form
   }
 }

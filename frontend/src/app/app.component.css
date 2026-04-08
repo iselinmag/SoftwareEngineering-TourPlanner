@@ -111,3 +111,37 @@ body {
     overflow: visible;
   }
 }
+
+/* =========================================
+   TASK 4: RESPONSIVE LAYOUT (Mobile & Tablet)
+   ========================================= */
+@media (max-width: 900px) {
+  
+  /* 1. Stack the layout vertically instead of side-by-side */
+  .app-container {
+    flex-direction: column;
+    height: auto;      /* Removes the 100vh lock so the page can grow */
+    overflow-y: auto;  /* Allows the whole page to scroll on mobile */
+  }
+
+  /* 2. Make the Sidebar take up the full width */
+  .sidebar {
+    width: 100%;
+    max-width: none;   /* Removes the 420px desktop limit */
+    height: auto;      /* Lets it size naturally */
+    border-right: none; /* Removes the vertical divider line... */
+    border-bottom: 2px solid #d1d5db; /* ...and replaces it with a horizontal one */
+  }
+
+  /* 3. Limit the Tour List height so the user can easily scroll down to the Map/Details */
+  .sidebar-content {
+    max-height: 40vh;  /* Takes up 40% of the screen height before scrolling inside itself */
+  }
+
+  /* 4. Make the Main Content span the full width below the Sidebar */
+  .main-content {
+    width: 100%;
+    overflow: visible; /* Lets it flow naturally down the rest of the page */
+    padding-bottom: 2rem; /* Adds a little breathing room at the bottom of the page */
+  }
+}

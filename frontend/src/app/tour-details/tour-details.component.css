@@ -1,0 +1,160 @@
+/* Container */
+.details-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Header & Title */
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.tour-title {
+  margin: 0;
+  color: #333;
+}
+
+.transport-badge {
+  background-color: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+/* Typography & Layout (View Mode) */
+.tour-description {
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.info-background-box {
+    border-radius: 6px;
+    background-color: #f8f9fa;
+}
+
+.info-row {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.info-row p {
+  margin: 0;
+  color: #444;
+}
+
+/* =========================================
+   FORM STYLES (Edit Mode)
+   ========================================= */
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.half-width {
+  width: 50%;
+}
+
+.third-width {
+  width: 33.33%;
+}
+
+.full-width {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.form-control {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Ensures padding doesn't break the width */
+}
+
+/* =========================================
+   BUTTON STYLES
+   ========================================= */
+
+.btn {
+  cursor: pointer;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* Specific Button Colors */
+.btn-primary { background-color: #007bff; color: white; }
+.btn-secondary { background-color: #ccc; color: #333; }
+.btn-warning { background-color: #ffc107; color: #000; padding: 5px 10px; }
+.btn-danger { background-color: #dc3545; color: white; padding: 5px 10px; }
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  color: #888;
+  padding: 50px 20px;
+  background-color: #f8f9fa;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  font-size: 1.1em;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (Mobile & Tablet)
+   ========================================= */
+@media (max-width: 768px) {
+  /* This targets the side-by-side inputs and stacks them vertically */
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Forces all inputs to take up the full width on small screens */
+  .half-width, .third-width {
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  /* Makes the details info boxes stack vertically */
+  .info-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

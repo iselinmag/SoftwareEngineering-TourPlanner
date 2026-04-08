@@ -1,19 +1,89 @@
-<h3 class="section-title">Tours</h3>
+<div class="tour-list-container">
+  <h3 class="section-title">Tours</h3>
 
-<div
-  class="tour-card"
-  *ngFor="let tour of tours"
-  (click)="selectTour(tour)"
-  [class.selected]="selectedTourId === tour.id"
->
-  <h4>{{ tour.name }}</h4>
-  <p class="tour-description">{{ tour.description }}</p>
+  <!-- HTML for creating and updating tours -->
 
-  <div class="tour-meta">
-    <p><strong>From:</strong> {{ tour.fromLocation }}</p>
-    <p><strong>To:</strong> {{ tour.toLocation }}</p>
-    <p><strong>Transport:</strong> {{ tour.transportType }}</p>
-    <p><strong>Distance:</strong> {{ tour.distance }} km</p>
-    <p><strong>Estimated Time:</strong> {{ tour.estimatedTime }}</p>
+  <div class="tour-form-container">
+
+    <!-- Hide the form by default and wait for user click to turn visible -->
+    <h4 class="form-title" 
+        (click)="isFormVisible = !isFormVisible" 
+        style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+      Add New Tour
+      <span style="font-size: 0.8em; color: #666;">{{ isFormVisible ? '▼' : '▶' }}</span>
+    </h4>
+    
+    <form *ngIf="isFormVisible" [formGroup]="tourForm" (ngSubmit)="addTour()">
+      
+      <div class="form-group full-width">
+        <input type="text" formControlName="name" class="form-control" placeholder="Tour Name">
+        <small *ngIf="tourForm.get('name')?.invalid && tourForm.get('name')?.touched" class="error-text">
+          Name is required (min 3 chars).
+        </small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <input type="text" formControlName="fromLocation" class="form-control" placeholder="From Location">
+        </div>
+        <div class="form-group half-width">
+          <input type="text" formControlName="toLocation" class="form-control" placeholder="To Location">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group third-width">
+          <select formControlName="transportType" class="form-control">
+            <option *ngFor="let type of transportTypes" [value]="type">{{type}}</option>
+          </select>
+        </div>
+        <div class="form-group third-width">
+          <input type="number" formControlName="distance" class="form-control" placeholder="Distance (km)">
+          <!-- Error message if invalid Distance input -->
+          <small *ngIf="tourForm.get('distance')?.invalid && tourForm.get('distance')?.touched" class="error-text">
+            Distance must be positive!
+          </small>
+        </div>
+        <div class="form-group third-width">
+          <input type="text" formControlName="estimatedTime" class="form-control" placeholder="Time (e.g. 02:00)">
+        </div>
+      </div>
+
+      <div class="form-group full-width" style="margin-bottom: 0;">
+        <textarea formControlName="description" class="form-control" placeholder="Description" rows="2"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="tourForm.invalid" class="btn btn-success full-width-btn">Create Tour</button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Display Tours -->
+  <div 
+    *ngFor="let tour of listvm.tours()" 
+    class="tour-card"
+    [class.active]="listvm.selectedTourId() === tour.id"
+    (click)="onTourClick(tour)"
+  >
+    
+    <div class="tour-image">
+      <span>📷 Image Placeholder</span>
+    </div>
+
+    <div class="card-header">
+    <h4 class="tour-title">{{ tour.name }}</h4>
+    </div>
+    <p class="tour-description">{{ tour.description }}</p>
+
+    <!-- <div class="tour-meta">
+      <p><strong>From:</strong></p><p> {{ tour.fromLocation }}</p>
+      <p><strong>To:</strong></p><p> {{ tour.toLocation }}</p>
+      <p><strong>Transport:</strong> {{ tour.transportType }}</p>
+      <p><strong>Distance:</strong> {{ tour.distance }} km</p>
+      <p class="full-width"><strong>Estimated Time:</strong> {{ tour.estimatedTime }}</p>
+    </div> -->
+    
   </div>
 </div>
