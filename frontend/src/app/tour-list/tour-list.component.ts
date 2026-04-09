@@ -43,6 +43,19 @@ export class TourList {
     if (tour.id) {
       this.listvm.selectTour(tour.id); // update list view
       this.logVm.setSelectedTour(tour.id); // update log view
+
+      // Logic to automatically scroll to have map full screen when selected tour on mobile devices
+      // 1. Get a reference to the Map and Details section you want to scroll to.
+      const mapDetailsSection = document.getElementById('mapDetailsSection');
+
+      // 2. Define mobile breakpoint
+      const mobileBreakpoint = 900; 
+
+      // 3. Check screen width AND if the section exists.
+      if (mapDetailsSection && window.innerWidth <= mobileBreakpoint) {
+        // 4. Automatically and smoothly scroll into view.
+        mapDetailsSection.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   }
 

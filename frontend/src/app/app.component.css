@@ -72,7 +72,9 @@ body {
 
 .map-placeholder {
   width: 100%;
-  min-height: 300px;
+  height: 50vh;
+  min-height: 400px;
+  
   background-color: #e9ecef;
   border: 2px dashed #adb5bd;
   border-radius: 12px;
