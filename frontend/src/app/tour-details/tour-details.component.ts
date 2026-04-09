@@ -14,6 +14,7 @@ import { Tour, TransportType } from '../models/tour.model';
   styleUrl: './tour-details.component.css',
 })
 export class TourDetails {
+  // Inject the shared ViewModel to read the currently selected tour and to update/delete tours from it
   vm = inject(TourListViewmodel);
 
   private fb = inject(FormBuilder);
@@ -21,6 +22,7 @@ export class TourDetails {
   isEditMode = false;
   transportTypes = Object.values(TransportType);
 
+  // Defines the edit form structure with the same structure and rules as the create form
   editForm = this.fb.group({
     id: [''],
     name: ['', [Validators.required, Validators.minLength(3)]],
@@ -33,23 +35,26 @@ export class TourDetails {
   });
 
   constructor() {
-    // Automatically exit edit mode if the user clicks on a diffrent tour in the list
+    // Automatically exit edit mode if the user clicks on a different tour in the list
+    // effect() runs this code every time selectedTour() changes.
+    // we use it to prevent bug where user clicks edit on tour A but switches to tour B, we want edit form to reset
     effect(() => {
-      const currentTour = this.vm.selectedTour();
+      const currentTour = this.vm.selectedTour(); // reading this signal registers it as a dependency
       this.isEditMode = false; 
     });
   }
 
-  // Puts the selected tour's data into the form and shows it
+  // Switches to edit mode and puts the selected tour's data into the form and shows it
   enableEditMode(tour: Tour) {
     this.isEditMode = true;
-    this.editForm.patchValue(tour);
+    this.editForm.patchValue(tour); // patchValue() fills each form field with the matching property from the tour object.
   }
 
   cancelEdit() {
     this.isEditMode = false;
   }
 
+  // Sends the updated tour data to the ViewModel and disables edit mode
   saveEdit() {
     if (this.editForm.invalid) return;
     this.vm.updateTour(this.editForm.value as Tour);
@@ -57,7 +62,7 @@ export class TourDetails {
   }
 
   deleteTour(id: string) {
-    // Add a simple confirmation so they don't accidentally click it
+    // We ask for confirmation before deleting to prevent accidental clicks.
     if(confirm('Are you sure you want to delete this tour?')) {
       this.vm.deleteTour(id);
     }

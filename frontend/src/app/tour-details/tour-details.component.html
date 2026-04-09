@@ -1,10 +1,16 @@
+<!-- We only display this div if a tour is selected.
+     We then save the selected tour as "tour" so we can use it below.
+     If nothing is selected, we jump to the #noTourSelected template instead. -->
 <div *ngIf="vm.selectedTour() as tour; else noTourSelected" class="details-container">
   
   <div *ngIf="isEditMode; else viewMode">
+
+    <!-- ===== EDIT MODE ===== -->
     <div class="details-header">
       <h2 class="tour-title">Edit Tour</h2>
     </div>
 
+    <!-- This form is connected to editForm in the TypeScript. Calls saveEdit() on submit. -->
     <form [formGroup]="editForm" (ngSubmit)="saveEdit()">
       <input type="hidden" formControlName="id">
       
@@ -33,6 +39,7 @@
           <label>Distance (km):</label>
           <input type="number" formControlName="distance" class="form-control">
           <!-- Error message for invalid distance -->
+          <!-- Only shown if the user touched the field and the value is invalid -->
           <small *ngIf="editForm.get('distance')?.invalid && editForm.get('distance')?.touched" style="color: red; font-size: 0.85em;">
             Distance must be a positive number!
           </small>
@@ -47,19 +54,24 @@
       <textarea formControlName="description" rows="3" class="form-control full-width"></textarea>
 
       <div class="form-actions">
+        <!-- Disabled until all form fields pass their validators -->
         <button type="submit" [disabled]="editForm.invalid" class="btn btn-primary">Save Changes</button>
+        <!-- type="button" prevents this from accidentally submitting the form -->
         <button type="button" (click)="cancelEdit()" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 
+  <!-- ===== VIEW MODE (the "else" for isEditMode) ===== -->
   <ng-template #viewMode>
     <div class="details-header">
       <h2 class="tour-title">{{ tour.name }}</h2>
       
       <div class="header-actions">
+        <!-- Blue pill badge showing the transport type -->
         <span class="transport-badge">{{ tour.transportType }}</span>
         <button (click)="enableEditMode(tour)" class="btn btn-warning">✏️ Edit</button>
+         <!-- The ! after tour.id tells TypeScript "I promise this is not null" -->
         <button (click)="deleteTour(tour.id!)" class="btn btn-danger">🗑️ Delete</button>
       </div>
     </div>
@@ -83,6 +95,7 @@
 
 </div>
 
+<!-- This is shown when no tour is selected (the "else" for the outer *ngIf) -->
 <ng-template #noTourSelected>
   <div class="empty-state">
     <p>Please select a tour from the list to view details.</p>

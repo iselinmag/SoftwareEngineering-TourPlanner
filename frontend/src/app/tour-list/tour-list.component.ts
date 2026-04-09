@@ -17,18 +17,20 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 })
 export class TourList {
   // Inject our ViewModels
+  // inject() asks Angular to provide the shared singleton instance (meaning instead of copying the viewmodel and creating duplicates it just uses 1 instead) of each service.
   listvm = inject(TourListViewmodel);
   logVm = inject(TourLogViewmodel);
 
-  // Hide the form by default
+  // Hide the form by default, toggled by clicking the form header
   isFormVisible = false
 
+  // FormBuilder is an Angular utility that makes building reactive forms easier.
   private fb = inject(FormBuilder) // we use it for Creating and updating tours
 
   // Create form structure
   tourForm = this.fb.group({
     id: [''],
-    name: ['', [Validators.required, Validators.minLength(3)]],
+    name: ['', [Validators.required, Validators.minLength(3)]],// QUESTION: What is Validator?
     description: ['', Validators.required],
     fromLocation: ['', Validators.required],
     toLocation: ['', Validators.required],
@@ -39,30 +41,29 @@ export class TourList {
 
   transportTypes = Object.values(TransportType);
 
+  // Called when a tour card is clicked.
+  // It updates both ViewModels so TourDetails and TourLog stay in sync.
   onTourClick(tour: Tour) {
     if (tour.id) {
       this.listvm.selectTour(tour.id); // update list view
       this.logVm.setSelectedTour(tour.id); // update log view
 
       // Logic to automatically scroll to have map full screen when selected tour on mobile devices
-      // 1. Get a reference to the Map and Details section you want to scroll to.
       const mapDetailsSection = document.getElementById('mapDetailsSection');
-
-      // 2. Define mobile breakpoint
       const mobileBreakpoint = 900; 
 
-      // 3. Check screen width AND if the section exists.
       if (mapDetailsSection && window.innerWidth <= mobileBreakpoint) {
-        // 4. Automatically and smoothly scroll into view.
         mapDetailsSection.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }
 
+  // called when user clicks create tour
+  // sends data to viewmodel then resets form
   addTour() {
     if (this.tourForm.invalid) return;
     const tourData = this.tourForm.value as Tour;
-    this.listvm.addTour(tourData); // Only Adds
+    this.listvm.addTour(tourData);
     this.tourForm.reset({ transportType: TransportType.Bike, distance: 0 }); // Reset form
   }
 }

@@ -1,11 +1,11 @@
 <div class="tour-list-container">
   <h3 class="section-title">Tours</h3>
 
-  <!-- HTML for creating and updating tours -->
+  <!-- HTML for creating tours form-->
 
   <div class="tour-form-container">
 
-    <!-- Hide the form by default and wait for user click to turn visible -->
+    <!-- Hide the form by default and wait for user click to toggle it and turn it visible -->
     <h4 class="form-title" 
         (click)="isFormVisible = !isFormVisible" 
         style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
@@ -13,10 +13,12 @@
       <span style="font-size: 0.8em; color: #666;">{{ isFormVisible ? '▼' : '▶' }}</span>
     </h4>
     
+    <!-- Only render the form when isFormVisible is true -->
     <form *ngIf="isFormVisible" [formGroup]="tourForm" (ngSubmit)="addTour()">
       
       <div class="form-group full-width">
         <input type="text" formControlName="name" class="form-control" placeholder="Tour Name">
+        <!-- Only show this error after the user has touched the field -->
         <small *ngIf="tourForm.get('name')?.invalid && tourForm.get('name')?.touched" class="error-text">
           Name is required (min 3 chars).
         </small>
@@ -54,6 +56,7 @@
       </div>
 
       <div class="form-actions">
+        <!-- Button stays disabled until every form field passes validation -->
         <button type="submit" [disabled]="tourForm.invalid" class="btn btn-success full-width-btn">Create Tour</button>
       </div>
 
@@ -61,6 +64,10 @@
   </div>
 
   <!-- Display Tours -->
+
+  <!-- This generates the tour list one by one, one card per tour, rendered with *ngFor -->
+  <!-- [class.active] adds the blue border highlight to the currently selected card -->
+  <!-- (click) calls onTourClick when the user clicks any card -->
   <div 
     *ngFor="let tour of listvm.tours()" 
     class="tour-card"
@@ -76,14 +83,5 @@
     <h4 class="tour-title">{{ tour.name }}</h4>
     </div>
     <p class="tour-description">{{ tour.description }}</p>
-
-    <!-- <div class="tour-meta">
-      <p><strong>From:</strong></p><p> {{ tour.fromLocation }}</p>
-      <p><strong>To:</strong></p><p> {{ tour.toLocation }}</p>
-      <p><strong>Transport:</strong> {{ tour.transportType }}</p>
-      <p><strong>Distance:</strong> {{ tour.distance }} km</p>
-      <p class="full-width"><strong>Estimated Time:</strong> {{ tour.estimatedTime }}</p>
-    </div> -->
-    
   </div>
 </div>

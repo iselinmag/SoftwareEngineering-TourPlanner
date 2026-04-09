@@ -1,11 +1,15 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Tour, TransportType } from '../models/tour.model';
 
+// @Injectable makes this class a Service.
+// providedIn: 'root' means Angular creates ONE shared version of the file that is available for the whole app,
+// so every component that injects this gets the same data.
+
 @Injectable({
   providedIn: 'root',
 })
 export class TourListViewmodel {
-  // 1. State where we keep all our dummy tours.
+  // All tours are stored as a Signal so Angular automatically updates
   tours = signal<Tour[]>([
     {
       id: 'tour1',
@@ -69,31 +73,35 @@ export class TourListViewmodel {
     }
   ]);
 
-  // 2. State that tracks which tour is currently selected
+  // Holds the ID of whichever tour the user has clicked.
+  // null means nothing is selected yet.
+  // we use signal so all components automatically update this value
   selectedTourId = signal<string | null>(null);
 
-  // 3. A computed signal that automatically finds the full tour object based on the selected ID
-  selectedTour = computed(() => {
+  // We use a computed signal that automatically finds the full tour object based on the selected ID
+  // It also recalculates instantly whenever selectedTourId or tours change
+  selectedTour = computed(() => { 
     const id = this.selectedTourId();
     if (!id) return null;
+    // Automatically give the FULL tour object for whichever ID is currently selected
     return this.tours().find(t => t.id === id) || null;
   });
 
-  // 4. Method to update the selected tour
+  // This gets called when the user clicks a tour card and it updates the selected ID.
   selectTour(id: string) {
     this.selectedTourId.set(id);
   }
 
-  // Create tour
+  // Create tour and add it to the list
   addTour(tour: Tour) {
-    // 1. Generate a temp ID
+    // Generate a temp ID with timestamp -> TODO: later REPLACE with DATASET ID
     tour.id = Date.now().toString(); 
     
-    // 2. Update the signal by copying the old array and adding the new tour element at the end
+    // Update the signal by copying the old array and adding the new tour element at the end
     this.tours.update(tours => [...tours, tour]);
   }
 
-  // Update tour
+  // Update an old tour, replaces the old version with the new version in the list
   updateTour(updatedTour: Tour) {
     this.tours.update(tours => 
       tours.map(tour => tour.id === updatedTour.id ? updatedTour : tour)
@@ -102,10 +110,10 @@ export class TourListViewmodel {
 
   // Delete tour
   deleteTour(id: string) {
-    // 1. Filter out the deleted tour
+    // Filter out the deleted tour from the list
     this.tours.update(tours => tours.filter(tour => tour.id !== id));
     
-    // 2. If we delete the currently selected tour then we reset the view
+    // If we delete the currently selected tour then we reset the view
     if (this.selectedTourId() === id) {
       this.selectedTourId.set(null);
     }
