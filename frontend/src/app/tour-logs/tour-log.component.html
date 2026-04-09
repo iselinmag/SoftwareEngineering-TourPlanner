@@ -1,14 +1,21 @@
 <div class="tour-log-container">
+  <!-- Section title -->
   <h3>Tour Logs</h3>
 
   <div class="log-layout">
+
+    <!-- LEFT SIDE: form for creating or editing a log -->
     <div class="log-form-wrapper">
       <div class="log-form">
+
+        <!-- Input field for log date -->
         <div class="form-group">
           <label>Date</label>
+          <!-- Two-way binding: input value is stored in form.dateTime -->
           <input type="date" [(ngModel)]="form.dateTime" />
         </div>
 
+        <!-- Input field for short comment -->
         <div class="form-group">
           <label>Comment</label>
           <input
@@ -18,15 +25,18 @@
           />
         </div>
 
+        <!-- Dropdown for difficulty level -->
         <div class="form-group">
           <label>Difficulty</label>
           <select [(ngModel)]="form.difficulty">
+            <!-- Creates one option for each value in the difficulties array -->
             <option *ngFor="let difficulty of difficulties" [value]="difficulty">
               {{ difficulty }}
             </option>
           </select>
         </div>
 
+        <!-- Input for total distance -->
         <div class="form-group">
           <label>Total Distance (km)</label>
           <input
@@ -36,6 +46,7 @@
           />
         </div>
 
+        <!-- Input for total time -->
         <div class="form-group">
           <label>Total Time</label>
           <input
@@ -45,6 +56,7 @@
           />
         </div>
 
+        <!-- Input for rating -->
         <div class="form-group">
           <label>Rating (1–5)</label>
           <input
@@ -55,11 +67,15 @@
           />
         </div>
 
+        <!-- Buttons for saving or cancelling -->
         <div class="form-buttons">
+          <!-- Calls saveLog() when clicked -->
           <button (click)="saveLog()">
+            <!-- Button text changes depending on whether user edits or adds -->
             {{ isEditing ? 'Save Changes' : 'Add Log' }}
           </button>
 
+          <!-- Cancel button is only shown while editing -->
           <button
             class="secondary-button"
             *ngIf="isEditing"
@@ -69,21 +85,27 @@
           </button>
         </div>
 
+        <!-- Shows general error message if one exists -->
         <p class="error-message" *ngIf="errorMessage">
           {{ errorMessage }}
         </p>
 
+        <!-- Shows live validation error if rating is outside allowed range -->
         <p class="error-message" *ngIf="form.rating < 1 || form.rating > 5">
           Rating must be between 1 and 5
         </p>
       </div>
     </div>
 
+    <!-- RIGHT SIDE: list of logs -->
     <div class="log-list">
+
+      <!-- Empty state shown when no logs exist for selected tour -->
       <p class="empty-message" *ngIf="vm.filteredLogs().length === 0">
         No logs for the selected tour.
       </p>
 
+      <!-- Creates one log card for each filtered log -->
       <app-log-card
         *ngFor="let log of vm.filteredLogs()"
         [log]="log"

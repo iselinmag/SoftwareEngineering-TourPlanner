@@ -70,9 +70,9 @@
       <div class="header-actions">
         <!-- Blue pill badge showing the transport type -->
         <span class="transport-badge">{{ tour.transportType }}</span>
-        <button (click)="enableEditMode(tour)" class="btn btn-warning">✏️ Edit</button>
+        <button (click)="enableEditMode(tour)" class="btn btn-warning">Edit</button>
          <!-- The ! after tour.id tells TypeScript "I promise this is not null" -->
-        <button (click)="deleteTour(tour.id!)" class="btn btn-danger">🗑️ Delete</button>
+        <button (click)="deleteTour(tour.id!)" class="btn btn-danger">Delete</button>
       </div>
     </div>
 
