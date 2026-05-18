@@ -1,0 +1,19 @@
+# Server port
+server.port=8080
+
+# PostgreSQL connection
+spring.datasource.url=jdbc:postgresql://localhost:5432/tourplanner
+spring.datasource.username=YOUR_DB_USER
+spring.datasource.password=YOUR_DB_PASSWORD
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate settings
+# "update" = Hibernate automatically creates/updates tables based on your Entity classes
+# Change to "validate" once you're in production
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# Allow Angular (port 4200) to call this backend
+# This is called CORS — without it, browsers block cross-origin requests
+spring.web.cors.allowed-origins=http://localhost:4200

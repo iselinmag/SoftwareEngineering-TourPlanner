@@ -1,2 +1,11 @@
-/Users/iselinmagnussen/Desktop/tourplanner/backend/src/main/java/com/tourplanner/backend/TourplannerBackendApplication.java
-/Users/iselinmagnussen/Desktop/tourplanner/backend/src/main/java/com/tourplanner/backend/entity/Tour.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/controller/TourController.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/controller/TourLogController.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/dto/TourDTO.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/dto/TourLogDTO.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/entity/Tour.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/entity/TourLog.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/repository/TourLogRepository.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/repository/TourRepository.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/service/TourLogService.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/backend/service/TourService.java
+/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/tourplanner/BackendApplication.java

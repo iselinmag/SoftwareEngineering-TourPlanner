@@ -1,5 +1,3 @@
-// Matej
-
 import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourListViewmodel } from '../tour-list/tour-list-viewmodel';
@@ -14,17 +12,16 @@ import { Tour, TransportType } from '../models/tour.model';
   styleUrl: './tour-details.component.css',
 })
 export class TourDetails {
-  // Inject the shared ViewModel to read the currently selected tour and to update/delete tours from it
   vm = inject(TourListViewmodel);
-
   private fb = inject(FormBuilder);
 
   isEditMode = false;
   transportTypes = Object.values(TransportType);
 
-  // Defines the edit form structure with the same structure and rules as the create form
+  // The form uses null for the id field because Angular forms work with
+  // null/string internally. We convert to number when we call the service.
   editForm = this.fb.group({
-    id: [''],
+    id: [null as number | null],       // FIX: was [''] — id is a number, not a string
     name: ['', [Validators.required, Validators.minLength(3)]],
     description: ['', Validators.required],
     fromLocation: ['', Validators.required],
@@ -35,35 +32,34 @@ export class TourDetails {
   });
 
   constructor() {
-    // Automatically exit edit mode if the user clicks on a different tour in the list
-    // effect() runs this code every time selectedTour() changes.
-    // we use it to prevent bug where user clicks edit on tour A but switches to tour B, we want edit form to reset
+    // Automatically exit edit mode if the user clicks a different tour.
+    // effect() re-runs every time selectedTour() signal changes.
     effect(() => {
-      const currentTour = this.vm.selectedTour(); // reading this signal registers it as a dependency
-      this.isEditMode = false; 
+      this.vm.selectedTour();
+      this.isEditMode = false;
     });
   }
 
-  // Switches to edit mode and puts the selected tour's data into the form and shows it
+  // Switches to edit mode and fills the form with the current tour's data.
   enableEditMode(tour: Tour) {
     this.isEditMode = true;
-    this.editForm.patchValue(tour); // patchValue() fills each form field with the matching property from the tour object.
+    this.editForm.patchValue(tour);    // FIX: works now because form id is number | null
   }
 
   cancelEdit() {
     this.isEditMode = false;
   }
 
-  // Sends the updated tour data to the ViewModel and disables edit mode
+  // Sends the updated tour to the ViewModel and returns to read-only view.
   saveEdit() {
     if (this.editForm.invalid) return;
     this.vm.updateTour(this.editForm.value as Tour);
-    this.isEditMode = false; // return to normal view
+    this.isEditMode = false;
   }
 
-  deleteTour(id: string) {
-    // We ask for confirmation before deleting to prevent accidental clicks.
-    if(confirm('Are you sure you want to delete this tour?')) {
+  // FIX: parameter type changed from string to number to match Tour.id type
+  deleteTour(id: number) {
+    if (confirm('Are you sure you want to delete this tour?')) {
       this.vm.deleteTour(id);
     }
   }

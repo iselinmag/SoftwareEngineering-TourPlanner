@@ -1,8 +1,14 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { TourLog, Difficulty } from '../models/tour-log.model';
+import { TourLogService } from '../services/tour-log.service';
 
-
-
+// TourLogViewmodel is now ONLY responsible for UI state:
+//   - Which tour is currently selected (so we know which logs to show)
+//   - Filtering the logs list to only the selected tour
+//   - Forwarding add/update/delete calls to TourLogService
+//   - Form validation (belongs to the UI layer, not the data layer)
+//
+// The actual data and CRUD logic live in TourLogService.
 @Injectable({
   providedIn: 'root', // makes this service a shared singleton across the whole app
 })
@@ -10,109 +16,42 @@ export class TourLogViewmodel {
 
   // Holds the ID of the currently selected tour
   // null means no tour is selected
-  selectedTourId = signal<string | null>(null);
+  selectedTourId = signal<number | null>(null);
 
-  // Stores all logs in the system
-  // Using a signal means the UI will automatically update when this changes
-  logs = signal<TourLog[]>([
-    {
-      id: '1',
-      tourId: 'tour1',
-      dateTime: '2026-04-02',
-      comment: 'Nice route with great scenery.',
-      difficulty: Difficulty.Easy,
-      totalDistance: 10,
-      totalTime: '01:30',
-      rating: 4
-    },
-    {
-      id: '2',
-      tourId: 'tour2',
-      dateTime: '2026-04-01',
-      comment: 'Hard but worth it.',
-      difficulty: Difficulty.Hard,
-      totalDistance: 20,
-      totalTime: '03:00',
-      rating: 5
-    },
-    {
-      id: '3',
-      tourId: 'tour3',
-      dateTime: '2026-04-03',
-      comment: 'Nice running route with good pace.',
-      difficulty: Difficulty.Medium,
-      totalDistance: 11,
-      totalTime: '01:04',
-      rating: 4
-    },
-    {
-      id: '4',
-      tourId: 'tour4',
-      dateTime: '2026-04-02',
-      comment: 'Beautiful views, but quite steep.',
-      difficulty: Difficulty.Hard,
-      totalDistance: 9,
-      totalTime: '02:20',
-      rating: 5
-    },
-    {
-      id: '5',
-      tourId: 'tour2',
-      dateTime: '2026-04-04',
-      comment: 'Smooth bike path and very enjoyable.',
-      difficulty: Difficulty.Easy,
-      totalDistance: 14,
-      totalTime: '01:08',
-      rating: 5
-    }
-  ]);
+   // Inject the data service
+  private logService = inject(TourLogService);
 
-  // Computed value that automatically filters logs based on selected tour
-  // Runs every time selectedTourId or logs change
-  filteredLogs = computed(() => {
-    if (!this.selectedTourId()) return []; // no tour selected → no logs shown
-
-    // Only return logs that belong to the selected tour
-    return this.logs().filter(
-      log => log.tourId === this.selectedTourId()
-    );
-  });
+  // Now just expose all logs loaded for the current tour
+  // (the service already filters them via loadForTour)
+  readonly filteredLogs = this.logService.logs;
 
   // Updates which tour is currently selected
   // Called from the tour list component
-  setSelectedTour(tourId: string) {
+  setSelectedTour(tourId: number) {         // was string
     this.selectedTourId.set(tourId);
+    this.logService.loadForTour(tourId);    // fetch from backend
   }
 
-  // Adds a new log to the list
-  // Uses immutable update (creates new array instead of modifying old one)
+  // --- Delegate CRUD to the service ---
+
   addLog(log: TourLog) {
-    this.logs.update(logs => [...logs, log]);
+    this.logService.add(log);
   }
 
-  // Removes a log by ID
-  deleteLog(id: string) {
-    this.logs.update(logs => logs.filter(log => log.id !== id));
-  }
-
-  // Updates an existing log
-  // Replaces the old log with the updated one
   updateLog(updatedLog: TourLog) {
-    this.logs.update(logs =>
-      logs.map(log =>
-        log.id === updatedLog.id ? updatedLog : log
-      )
-    );
+    this.logService.update(updatedLog);
   }
 
-  // Basic validation check for a log
-  // Ensures required fields are filled and rating is valid
+  deleteLog(id: number, tourId: number) {   // add tourId parameter
+    this.logService.delete(id, tourId);
+  }
+  // Validation belongs in the ViewModel (UI concern, not data concern)
   isValid(log: TourLog): boolean {
     return (
-      !!log.comment &&           // must have comment
-      log.rating >= 1 &&         // rating must be between 1–5
+      !!log.comment &&
+      log.rating >= 1 &&
       log.rating <= 5 &&
-      !!log.dateTime            // must have date
+      !!log.dateTime
     );
   }
 }

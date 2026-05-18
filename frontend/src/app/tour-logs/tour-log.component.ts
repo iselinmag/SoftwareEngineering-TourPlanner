@@ -1,41 +1,35 @@
-// Import Angular core functionality
 import { Component, inject } from '@angular/core';
-
-// Import common Angular directives like *ngIf, *ngFor
 import { CommonModule } from '@angular/common';
-
-// Import template-driven forms (ngModel)
 import { FormsModule } from '@angular/forms';
-
-// Import the ViewModel that handles all logic and data for logs
 import { TourLogViewmodel } from './tour-log-viewmodel';
-
-// Import types (interface + enum)
 import { Difficulty, TourLog } from '../models/tour-log.model';
-
-// Import child component that displays each log as a card
 import { LogCardComponent } from './log-card.component';
 
-
-
 @Component({
-  selector: 'app-tour-log', // HTML tag used to render this component
-  standalone: true, // this component does not need a module
-  imports: [CommonModule, FormsModule, LogCardComponent], // what this component depends on
+  selector: 'app-tour-log',
+  standalone: true,
+  imports: [CommonModule, FormsModule, LogCardComponent],
   templateUrl: './tour-log.component.html',
   styleUrl: './tour-log.component.css',
 })
 export class TourLogList {
 
-  // Inject the shared ViewModel (this is where all data and logic lives)
   vm = inject(TourLogViewmodel);
 
-  // Get all difficulty values (Easy, Medium, Hard) for dropdown
   difficulties = Object.values(Difficulty);
 
-  // This is the form state (connected to inputs via ngModel)
-  form = {
-    id: '',              // used when editing an existing log
+  // FIX: id is now number | null to match TourLog.id type (number).
+  // We use null instead of '' as the empty/no-id state.
+  form: {
+    id: number | null;
+    dateTime: string;
+    comment: string;
+    difficulty: Difficulty;
+    totalDistance: number;
+    totalTime: string;
+    rating: number;
+  } = {
+    id: null,
     dateTime: '',
     comment: '',
     difficulty: Difficulty.Easy,
@@ -44,68 +38,50 @@ export class TourLogList {
     rating: 1
   };
 
-  // Stores validation or error messages shown in UI
   errorMessage = '';
-
-  // Tracks whether we are editing or creating a new log
   isEditing = false;
-
 
   // Called when user clicks "Add Log" or "Save Changes"
   saveLog() {
-    // Reset previous error
     this.errorMessage = '';
 
-    // Prevent creating logs without selecting a tour first
     if (!this.vm.selectedTourId()) {
       this.errorMessage = 'Please select a tour first.';
       return;
     }
 
-    // Create a new log object based on form data
+    // FIX: id is now number | undefined (not string).
+    // When creating a new log we leave id undefined — the backend assigns the real ID.
     const log: TourLog = {
-      // If editing → keep existing ID, else generate new one
-      id: this.isEditing ? this.form.id : Date.now().toString(),
-
-      // Link log to currently selected tour
+      id: this.isEditing && this.form.id !== null ? this.form.id : undefined,
       tourId: this.vm.selectedTourId()!,
-
-      // Map form values into log object
       dateTime: this.form.dateTime,
-      comment: this.form.comment.trim(), // remove extra spaces
+      comment: this.form.comment.trim(),
       difficulty: this.form.difficulty,
-      totalDistance: Number(this.form.totalDistance), // ensure number
+      totalDistance: Number(this.form.totalDistance),
       totalTime: this.form.totalTime,
       rating: Number(this.form.rating)
     };
 
-    // Validate input before saving
     if (!this.isFormValid(log)) {
       this.errorMessage =
         'Please fill all required fields correctly (rating 1–5, comment, date).';
       return;
     }
 
-    // If editing → update existing log
     if (this.isEditing) {
       this.vm.updateLog(log);
-    } 
-    // Else → create new log
-    else {
+    } else {
       this.vm.addLog(log);
     }
 
-    // Reset form after saving
     this.resetForm();
   }
 
-
   // Called when user clicks "Edit" on a log card
   editLog(log: TourLog) {
-
-    // Fill form with selected log values
     this.form = {
-      id: log.id ?? '', // fallback if id is undefined
+      id: log.id ?? null,              // FIX: was log.id ?? '' — now number | null
       dateTime: String(log.dateTime),
       comment: log.comment,
       difficulty: log.difficulty,
@@ -113,32 +89,26 @@ export class TourLogList {
       totalTime: log.totalTime,
       rating: log.rating
     };
-
-    // Switch UI into edit mode
     this.isEditing = true;
-
-    // Clear any previous error messages
     this.errorMessage = '';
   }
 
-
-  // Called when user clicks "Delete"
-  deleteLog(id: string) {
-    // Tell ViewModel to remove log
-    this.vm.deleteLog(id);
+  // FIX: deleteLog now receives a number and also passes tourId
+  // because TourLogViewmodel.deleteLog(id, tourId) needs both.
+  deleteLog(id: number) {
+    const tourId = this.vm.selectedTourId();
+    if (tourId !== null) {
+      this.vm.deleteLog(id, tourId);
+    }
   }
 
-
-  // Called when user clicks "Cancel" while editing
   cancelEdit() {
     this.resetForm();
   }
 
-
-  // Reset form to default values
   private resetForm() {
     this.form = {
-      id: '',
+      id: null,
       dateTime: '',
       comment: '',
       difficulty: Difficulty.Easy,
@@ -146,23 +116,17 @@ export class TourLogList {
       totalTime: '',
       rating: 1
     };
-
-    // Exit edit mode
     this.isEditing = false;
-
-    // Clear error messages
     this.errorMessage = '';
   }
 
-
-  // Simple validation logic for form input
   private isFormValid(log: TourLog): boolean {
     return (
-      !!log.dateTime &&              // must have date
-      !!log.comment &&               // must have comment
-      log.rating >= 1 &&             // rating between 1–5
+      !!log.dateTime &&
+      !!log.comment &&
+      log.rating >= 1 &&
       log.rating <= 5 &&
-      log.totalDistance >= 0         // distance cannot be negative
+      log.totalDistance >= 0
     );
   }
 }

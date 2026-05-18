@@ -7,8 +7,8 @@ export enum Difficulty {
 }
 
 export interface TourLog {
-  id?: string;
-  tourId: string; 
+  id?: number;
+  tourId: number; 
   dateTime: Date | string;
   comment: string;
   difficulty: Difficulty;
