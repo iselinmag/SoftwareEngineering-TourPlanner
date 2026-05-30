@@ -66,12 +66,15 @@
   <ng-template #viewMode>
     <div class="details-header">
       <h2 class="tour-title">{{ tour.name }}</h2>
-      
+
       <div class="header-actions">
-        <!-- Blue pill badge showing the transport type -->
+        <!-- transport type badge -->
         <span class="transport-badge">{{ tour.transportType }}</span>
+        <!-- popularity badge, only shown once the tour has at least one log -->
+        <span *ngIf="tour.popularity" class="popularity-badge">
+          ⭐ {{ tour.popularity }} {{ tour.popularity === 1 ? 'Review' : 'Reviews' }}
+        </span>
         <button (click)="enableEditMode(tour)" class="btn btn-warning">Edit</button>
-         <!-- The ! after tour.id tells TypeScript "I promise this is not null" -->
         <button (click)="deleteTour(tour.id!)" class="btn btn-danger">Delete</button>
       </div>
     </div>
@@ -79,16 +82,32 @@
     <p class="tour-description">
       <strong>Description:</strong> {{ tour.description }}
     </p>
-    
+
     <div class="info-background-box">
       <div class="info-row">
-          <p><strong>From:</strong> {{ tour.fromLocation }}</p>
-          <p><strong>To:</strong> {{ tour.toLocation }}</p>
+        <p><strong>From:</strong> {{ tour.fromLocation }}</p>
+        <p><strong>To:</strong> {{ tour.toLocation }}</p>
       </div>
 
       <div class="info-row">
-          <p><strong>Distance:</strong> {{ tour.distance }} km</p>
-          <p><strong>Estimated Time:</strong> {{ tour.estimatedTime }}</p>
+        <p><strong>Distance:</strong> {{ tour.distance }} km</p>
+        <p><strong>Estimated Time:</strong> {{ tour.estimatedTime }}</p>
+      </div>
+
+      <!-- computed attributes row, always shown -->
+      <div class="info-row">
+        <p>
+          <strong>Popularity:</strong>
+          <!-- show number of logs, or "no logs yet" if zero -->
+          {{ tour.popularity ? tour.popularity + ' log(s)' : 'no logs yet' }}
+        </p>
+        <p>
+          <strong>Child Friendly:</strong>
+          <!-- backend returns "Child Friendly", "Moderate", or "Not Child Friendly" -->
+          <span [class]="'friendly-badge friendly-' + getFriendlinessClass(tour.childFriendliness)">
+            {{ tour.childFriendliness ?? 'Unknown' }}
+          </span>
+        </p>
       </div>
     </div>
   </ng-template>

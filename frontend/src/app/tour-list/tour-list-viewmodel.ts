@@ -46,14 +46,24 @@ export class TourListViewmodel {
     this.selectedTourId.set(id);
   }
 
+  currentSearchTerm = signal<string>(""); // we make a signal so in the future every component can read the current search term.
+
+  search(query: string) {
+    this.currentSearchTerm.set(query);
+    if (!query) {
+      return this.tourService.loadAll();
+    }
+    return this.tourService.search(query)
+  }
+
+  // --- Delegate CRUD to the service ---
+
   deleteTour(id: number) {        // was string
     this.tourService.delete(id);
     if (this.selectedTourId() === id) {
       this.selectedTourId.set(null);
     }
   }
-
-  // --- Delegate CRUD to the service ---
 
   addTour(tour: Tour) {
     this.tourService.add(tour);

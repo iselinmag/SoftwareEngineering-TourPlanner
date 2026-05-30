@@ -21,7 +21,7 @@ export class LogCardComponent {
 
   // Emits an event when the user wants to delete this log
   // Sends only the log ID back to the parent
-  @Output() delete = new EventEmitter<string>();
+  @Output() delete = new EventEmitter<number>();
 
 
   // Called when user clicks the "Edit" button
@@ -34,7 +34,7 @@ export class LogCardComponent {
   // Called when user clicks the "Delete" button
   onDelete() {
     // Only send if log has an ID (safety check)
-    if (this.log.id) {
+    if (this.log.id !== undefined) {
       this.delete.emit(this.log.id);
     }
   }

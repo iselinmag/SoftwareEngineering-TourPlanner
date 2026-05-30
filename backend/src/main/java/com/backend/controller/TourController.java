@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController                  // Combines @Controller + @ResponseBody
 @RequestMapping("/api/tours")    // All methods in this class start with /api/tours
-@CrossOrigin(origins = "http://localhost:4200")  // Allow Angular to call this
+@CrossOrigin(origins = "http://localhost:4200")  // Allow Angular to call this, but block others
 public class TourController {
 
     private final TourService tourService;
@@ -25,7 +25,7 @@ public class TourController {
 
     // GET /api/tours/1 → returns tour with id=1
     @GetMapping("/{id}")
-    public ResponseEntity<TourDTO> getTourById(@PathVariable Long id) {
+    public ResponseEntity<TourDTO> getTourById(@PathVariable Long id) { // Q: What is response Entity
         return ResponseEntity.ok(tourService.getTourById(id));
     }
 

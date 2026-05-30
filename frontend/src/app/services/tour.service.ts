@@ -9,12 +9,18 @@ export class TourService {
   private apiUrl = 'http://localhost:8080/api/tours';
 
   private _tours = signal<Tour[]>([]);
-  readonly tours = this._tours.asReadonly();
+  readonly tours = this._tours.asReadonly(); // what is this?
 
   loadAll(): void {
     this.http.get<Tour[]>(this.apiUrl).subscribe(tours => {
       this._tours.set(tours);
     });
+  }
+
+  search(query: string): void {
+    this.http.get<Tour[]>(this.apiUrl + "/search?query=" + query).subscribe(tours => {
+      this._tours.set(tours);
+    })
   }
 
   add(tour: Tour): void {

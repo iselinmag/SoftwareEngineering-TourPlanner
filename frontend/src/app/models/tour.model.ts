@@ -8,7 +8,7 @@ export enum TransportType {
 }
 
 export interface Tour {
-  id?: string; // optional field
+  id?: number; // optional field
   name: string;
   description: string;
   fromLocation: string;
@@ -17,4 +17,8 @@ export interface Tour {
   distance: number; 
   estimatedTime: string; 
   routeInformation?: string; 
+  
+  // computed by the backend, read only on the frontend
+  popularity?: number;
+  childFriendliness?: string;
 }

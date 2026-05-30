@@ -158,3 +158,37 @@
     gap: 5px;
   }
 }
+
+/* popularity badge next to the transport badge in the header */
+.popularity-badge {
+  background-color: #6f42c1;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+/* child friendliness badge inside the info row */
+.friendly-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.friendly-good {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.friendly-ok {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.friendly-bad {
+  background-color: #f8d7da;
+  color: #721c24;
+}

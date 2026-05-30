@@ -3,6 +3,23 @@
 
   <!-- HTML for creating tours form-->
 
+  <!-- Search box — filters the tour list as the user types -->
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search tours..."
+      [value]="listvm.currentSearchTerm()"
+      (input)="listvm.search($any($event.target).value)"
+    />
+    <!-- Show a clear button only when there is an active search term -->
+    <button
+      *ngIf="listvm.currentSearchTerm()"
+      class="search-clear-btn"
+      (click)="listvm.search('')"
+    >✕</button>
+  </div>
+
   <div class="tour-form-container">
 
     <!-- Hide the form by default and wait for user click to toggle it and turn it visible -->

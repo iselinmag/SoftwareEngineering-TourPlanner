@@ -40,6 +40,15 @@ export class TourDetails {
     });
   }
 
+  // converts the backend string into a safe css class name
+  // "Child Friendly" -> "good", "Moderate" -> "ok", anything else -> "bad"
+  getFriendlinessClass(value: string | undefined): string {
+    if (!value) return 'bad';
+    if (value === 'Child Friendly') return 'good';
+    if (value === 'Moderate') return 'ok';
+    return 'bad';
+  }
+
   // Switches to edit mode and fills the form with the current tour's data.
   enableEditMode(tour: Tour) {
     this.isEditMode = true;

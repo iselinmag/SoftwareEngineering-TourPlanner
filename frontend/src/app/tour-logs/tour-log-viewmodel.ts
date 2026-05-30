@@ -27,7 +27,7 @@ export class TourLogViewmodel {
 
   // Updates which tour is currently selected
   // Called from the tour list component
-  setSelectedTour(tourId: number) {         // was string
+  setSelectedTour(tourId: number) {         
     this.selectedTourId.set(tourId);
     this.logService.loadForTour(tourId);    // fetch from backend
   }
