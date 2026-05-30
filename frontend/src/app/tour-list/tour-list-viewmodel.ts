@@ -65,8 +65,8 @@ export class TourListViewmodel {
     }
   }
 
-  addTour(tour: Tour) {
-    this.tourService.add(tour);
+  addTour(tour: Tour, onSuccess?: () => void) {
+    this.tourService.add(tour, onSuccess);
   }
 
   updateTour(updatedTour: Tour) {

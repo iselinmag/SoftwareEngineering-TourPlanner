@@ -16,6 +16,7 @@ export class TourDetails {
   private fb = inject(FormBuilder);
 
   isEditMode = false;
+  isSaving = false;      
   transportTypes = Object.values(TransportType);
 
   // The form uses null for the id field because Angular forms work with
@@ -26,9 +27,10 @@ export class TourDetails {
     description: ['', Validators.required],
     fromLocation: ['', Validators.required],
     toLocation: ['', Validators.required],
-    transportType: [TransportType.Bike, Validators.required],
-    distance: [0, [Validators.required, Validators.min(0.1)]],
-    estimatedTime: ['', Validators.required]
+    transportType: [TransportType.Walk, Validators.required],
+    distance: [0],
+    estimatedTime: [''],
+    routeInformation: ['']
   });
 
   constructor() {
@@ -62,8 +64,16 @@ export class TourDetails {
   // Sends the updated tour to the ViewModel and returns to read-only view.
   saveEdit() {
     if (this.editForm.invalid) return;
+    this.isSaving = true;
+
+    // The backend will recalculate distance and estimatedTime via RouteService.
+    // When the HTTP response comes back, TourService.update() replaces the tour
+    // in the signal with the updated version (including new distance/time),
+    // so the view mode will automatically show the correct values.
     this.vm.updateTour(this.editForm.value as Tour);
+
     this.isEditMode = false;
+    this.isSaving = false;
   }
 
   // FIX: parameter type changed from string to number to match Tour.id type

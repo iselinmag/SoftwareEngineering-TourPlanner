@@ -34,9 +34,9 @@ export class TourList {
     description: ['', Validators.required],
     fromLocation: ['', Validators.required],
     toLocation: ['', Validators.required],
-    transportType: [TransportType.Bike, Validators.required],
-    distance: [0, [Validators.required, Validators.min(0.1)]],
-    estimatedTime: ['', Validators.required]
+    transportType: [TransportType.Walk, Validators.required],
+    distance: [0],
+    estimatedTime: ['']
   });
 
   transportTypes = Object.values(TransportType);
@@ -63,7 +63,9 @@ export class TourList {
   addTour() {
     if (this.tourForm.invalid) return;
     const tourData = this.tourForm.value as Tour;
-    this.listvm.addTour(tourData);
-    this.tourForm.reset({ transportType: TransportType.Bike, distance: 0 }); // Reset form
+    this.listvm.addTour(tourData, () => {
+      // Only reset the form after the backend confirms the tour was saved
+      this.tourForm.reset({ transportType: TransportType.Walk, distance: 0 });
+    });
   }
 }

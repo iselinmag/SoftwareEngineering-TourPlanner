@@ -37,6 +37,6 @@ public class Tour {
 
     // Enum must be defined in the same package or imported
     public enum TransportType {
-        Bike, Hike, Running, Vacation
+        Walk, Hike, Bike, Car, Boat, Run
     }
 }

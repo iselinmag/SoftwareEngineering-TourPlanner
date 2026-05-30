@@ -57,14 +57,12 @@
           </select>
         </div>
         <div class="form-group third-width">
-          <input type="number" formControlName="distance" class="form-control" placeholder="Distance (km)">
-          <!-- Error message if invalid Distance input -->
-          <small *ngIf="tourForm.get('distance')?.invalid && tourForm.get('distance')?.touched" class="error-text">
-            Distance must be positive!
-          </small>
+          <input type="number" formControlName="distance" class="form-control"
+            placeholder="Auto-filled by route">
         </div>
         <div class="form-group third-width">
-          <input type="text" formControlName="estimatedTime" class="form-control" placeholder="Time (e.g. 02:00)">
+          <input type="text" formControlName="estimatedTime" class="form-control"
+       placeholder="Auto-filled by route">
         </div>
       </div>
 

@@ -36,11 +36,7 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!-- Spring Boot Web — lets you create REST endpoints -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+		
 
 		<!-- Spring Boot DevTools — auto-restarts backend when you save -->
 		<dependency>
@@ -78,7 +74,7 @@
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
 
-		<!-- Exclude default logging to avoid conflict with log4j2 -->
+		<!-- Spring Boot Web + exclude default logging (log4j2 is used instead) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>

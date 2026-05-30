@@ -19,10 +19,14 @@ public class TourService {
     // Spring automatically injects these (called "constructor injection")
     private final TourRepository tourRepository;
     private final TourLogRepository tourLogRepository;
+    private final RouteService routeService;
 
-    public TourService(TourRepository tourRepository, TourLogRepository tourLogRepository) {
+    public TourService(TourRepository tourRepository,
+                   TourLogRepository tourLogRepository,
+                   RouteService routeService) {
         this.tourRepository = tourRepository;
         this.tourLogRepository = tourLogRepository;
+        this.routeService = routeService;
     }
 
     // GET all tours
@@ -46,23 +50,66 @@ public class TourService {
     public TourDTO createTour(TourDTO dto) {
         logger.info("Creating tour: {}", dto.getName());
         Tour tour = toEntity(dto);
-        Tour saved = tourRepository.save(tour);
-        return toDTO(saved);
+
+        try {
+            // call openrouteservice to get real distance and time
+            // if it fails we fall back to whatever the user typed in
+            RouteService.RouteResult route = routeService.getRoute(
+                    dto.getFromLocation(),
+                    dto.getToLocation(),
+                    dto.getTransportType().name()
+            );
+
+            if (route != null) {
+                tour.setDistance(route.distanceKm);
+                tour.setEstimatedTime(route.estimatedTime);
+                logger.info("Route data applied: {} km, {}", route.distanceKm, route.estimatedTime);
+            } else {
+                logger.warn("Route fetch failed, using user-provided values");
+            }
+        } catch (Exception e) {
+            // Route calculation failed — log it but ALWAYS save the tour
+            logger.error("Route service threw an exception, saving tour with user values: {}", e.getMessage());
+        }
+
+        return toDTO(tourRepository.save(tour));
     }
+
 
     // UPDATE tour
     public TourDTO updateTour(Long id, TourDTO dto) {
         logger.info("Updating tour id {}", id);
         Tour existing = tourRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tour not found: " + id));
+
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
         existing.setFromLocation(dto.getFromLocation());
         existing.setToLocation(dto.getToLocation());
         existing.setTransportType(dto.getTransportType());
-        existing.setDistance(dto.getDistance());
-        existing.setEstimatedTime(dto.getEstimatedTime());
         existing.setRouteInformation(dto.getRouteInformation());
+
+        try {
+            // recalculate route whenever from/to locations are updated
+            RouteService.RouteResult route = routeService.getRoute(
+                    dto.getFromLocation(),
+                    dto.getToLocation(),
+                    dto.getTransportType().name()
+            );
+
+            if (route != null) {
+                existing.setDistance(route.distanceKm);
+                existing.setEstimatedTime(route.estimatedTime);
+            } else {
+                // keep existing values if the route call fails
+                existing.setDistance(dto.getDistance());
+                existing.setEstimatedTime(dto.getEstimatedTime());
+            }
+        } catch (Exception e) {
+            // Route calculation failed — log it but ALWAYS save the tour
+            logger.error("Route service threw an exception, saving tour with user values: {}", e.getMessage());
+        }
+
         return toDTO(tourRepository.save(existing));
     }
 

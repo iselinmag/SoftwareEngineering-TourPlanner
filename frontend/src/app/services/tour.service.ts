@@ -23,9 +23,16 @@ export class TourService {
     })
   }
 
-  add(tour: Tour): void {
-    this.http.post<Tour>(this.apiUrl, tour).subscribe(created => {
-      this._tours.update(current => [...current, created]);
+  add(tour: Tour, onSuccess?: () => void): void {
+    this.http.post<Tour>(this.apiUrl, tour).subscribe({
+      next: (created) => {
+        this._tours.update(current => [...current, created]);
+        if (onSuccess) onSuccess();
+      },
+      error: (err) => {
+        console.error('Failed to create tour:', err);
+        alert('Could not create tour. Check the backend logs for details.');
+      }
     });
   }
 

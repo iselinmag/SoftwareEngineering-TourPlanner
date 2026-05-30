@@ -1,10 +1,12 @@
 // IF CHANGE MESSAGE FIRST!
 
 export enum TransportType {
-  Bike = 'Bike',
+  Walk = 'Walk',
   Hike = 'Hike',
-  Running = 'Running',
-  Vacation = 'Vacation'
+  Bike = 'Bike',
+  Car = 'Car',
+  Boat = 'Boat',
+  Run = 'Run'
 }
 
 export interface Tour {
@@ -17,7 +19,7 @@ export interface Tour {
   distance: number; 
   estimatedTime: string; 
   routeInformation?: string; 
-  
+
   // computed by the backend, read only on the frontend
   popularity?: number;
   childFriendliness?: string;
