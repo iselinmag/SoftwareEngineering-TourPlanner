@@ -27,7 +27,9 @@ public class Tour {
 
     private Double distance;
     private String estimatedTime;
-    private String routeInformation;  // Will store map image path or route data
+    
+    @Column(columnDefinition = "TEXT")
+    private String routeInformation; // Will store map image path or route data
 
     // One tour can have many logs.
     // cascade = if you delete a tour, all its logs are also deleted.

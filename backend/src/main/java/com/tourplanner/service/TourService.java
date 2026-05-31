@@ -63,6 +63,7 @@ public class TourService {
             if (route != null) {
                 tour.setDistance(route.distanceKm);
                 tour.setEstimatedTime(route.estimatedTime);
+                tour.setRouteInformation(route.geometryJson); // save the route coordinates
                 logger.info("Route data applied: {} km, {}", route.distanceKm, route.estimatedTime);
             } else {
                 logger.warn("Route fetch failed, using user-provided values");
@@ -100,6 +101,7 @@ public class TourService {
             if (route != null) {
                 existing.setDistance(route.distanceKm);
                 existing.setEstimatedTime(route.estimatedTime);
+                existing.setRouteInformation(route.geometryJson);
             } else {
                 // keep existing values if the route call fails
                 existing.setDistance(dto.getDistance());

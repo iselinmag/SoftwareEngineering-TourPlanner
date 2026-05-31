@@ -1,0 +1,23 @@
+# mac system files
+.DS_Store
+**/.DS_Store
+
+# macos zip metadata
+__MACOSX/
+
+# intellij
+.idea/
+*.iml
+
+# compiled backend
+backend/target/
+
+# compiled frontend
+frontend/dist/
+frontend/.angular/
+
+# node
+frontend/node_modules/
+
+# secret config never commit the real one
+backend/src/main/resources/application.properties

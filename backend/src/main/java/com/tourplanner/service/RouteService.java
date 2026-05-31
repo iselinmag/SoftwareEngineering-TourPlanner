@@ -62,11 +62,13 @@ public class RouteService {
     // holds the result of a route calculation
     public static class RouteResult {
         public final double distanceKm;
-        public final String estimatedTime; // formatted as "HH:mm"
+        public final String estimatedTime;
+        public final String geometryJson; // the route as a json array of [lon,lat] pairs
 
-        public RouteResult(double distanceKm, String estimatedTime) {
+        public RouteResult(double distanceKm, String estimatedTime, String geometryJson) {
             this.distanceKm = distanceKm;
             this.estimatedTime = estimatedTime;
+            this.geometryJson = geometryJson;
         }
     }
 
@@ -74,29 +76,25 @@ public class RouteService {
     // returns null if the route cannot be calculated
     public RouteResult getRoute(String fromLocation, String toLocation, String transportType) {
         try {
-            // step 1: convert text locations to coordinates
             double[] from = geocode(fromLocation);
-            double[] to = geocode(toLocation);
+            double[] to   = geocode(toLocation);
 
             if (from == null || to == null) {
                 logger.warn("Could not geocode locations: {} -> {}", fromLocation, toLocation);
                 return null;
             }
 
-            // step 2: pick the right ors profile based on transport type
-            // ors uses different routing profiles for different transport modes
             String profile = switch (transportType) {
                 case "Bike" -> "cycling-regular";
                 case "Run"  -> "foot-running";
                 case "Hike" -> "foot-hiking";
                 case "Walk" -> "foot-walking";
-                default     -> "driving-car";  // Car, Boat
+                default     -> "driving-car";
             };
 
-            // step 3: build the request body as json
-            // ors expects coordinates as [[lon,lat],[lon,lat]]
+            // we ask for geojson geometry so we get plain coordinates, not encoded polyline
             String body = String.format(
-                "{\"coordinates\":[[%f,%f],[%f,%f]]}",
+                "{\"coordinates\":[[%f,%f],[%f,%f]],\"geometry_simplify\":\"true\"}",
                 from[0], from[1], to[0], to[1]
             );
 
@@ -105,31 +103,34 @@ public class RouteService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
-            String url = "https://api.openrouteservice.org/v2/directions/" + profile;
+            String url = "https://api.openrouteservice.org/v2/directions/" + profile + "/geojson";
 
             ResponseEntity<String> response = restTemplate.exchange(
                     url, HttpMethod.POST, entity, String.class);
 
-            // step 4: parse the response
-            // structure: routes[0].summary.distance (metres) + duration (seconds)
-            JsonNode root     = objectMapper.readTree(response.getBody());
-            JsonNode summary  = root.path("routes").get(0).path("summary");
+            JsonNode root    = objectMapper.readTree(response.getBody());
+            JsonNode feature = root.path("features").get(0);
+            JsonNode props   = feature.path("properties").path("summary");
 
-            double distanceMetres = summary.path("distance").asDouble();
-            double durationSeconds = summary.path("duration").asDouble();
+            double distanceMetres  = props.path("distance").asDouble();
+            double durationSeconds = props.path("duration").asDouble();
 
-            // convert metres to km, rounded to 1 decimal
             double distanceKm = Math.round(distanceMetres / 100.0) / 10.0;
 
-            // convert seconds to "HH:mm" format
-            long totalMinutes = (long) (durationSeconds / 60);
+            long totalMinutes  = (long) (durationSeconds / 60);
             String estimatedTime = String.format("%02d:%02d",
                     totalMinutes / 60, totalMinutes % 60);
 
-            logger.info("Route from '{}' to '{}': {} km, {}",
-                    fromLocation, toLocation, distanceKm, estimatedTime);
+            // the geometry is a list of [lon,lat] coordinate pairs
+            // we store it as a json string so we can save it in the database as text
+            JsonNode geometryCoords = feature.path("geometry").path("coordinates");
+            String geometryJson = objectMapper.writeValueAsString(geometryCoords);
 
-            return new RouteResult(distanceKm, estimatedTime);
+            logger.info("Route from '{}' to '{}': {} km, {}, {} points",
+                    fromLocation, toLocation, distanceKm, estimatedTime,
+                    geometryCoords.size());
+
+            return new RouteResult(distanceKm, estimatedTime, geometryJson);
 
         } catch (Exception e) {
             logger.error("Failed to get route from {} to {}", fromLocation, toLocation, e);
