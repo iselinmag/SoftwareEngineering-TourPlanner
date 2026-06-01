@@ -5,9 +5,22 @@
   with negative offsets, and overflow: hidden on the map div itself breaks
   Leaflet's internal size calculations, causing tile gaps and misalignment.
   Visual clipping for the rounded corners is handled by .map-card in app.component.css.
+
+  Height uses 100vh minus the space reserved for the details card and the
+  logs-title peek (~480px total: paddings + gaps + details + peek).
+  The ResizeObserver in tour-map.component.ts calls invalidateSize() on
+  every resize so Leaflet tiles always stay aligned.
 */
 .map-container {
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 65vh;
+  min-height: 300px;
+}
+
+@media (max-width: 900px) {
+  .map-container {
+    height: 45vh;
+    min-height: 220px;
+  }
 }

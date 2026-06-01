@@ -66,6 +66,8 @@ body {
 /* Leaflet container itself — that's critical because overflow: hidden on the  */
 /* Leaflet div breaks its internal tile positioning math                       */
 .map-card {
+  flex: 0 0 65vh;
+  height: 65vh;
   background: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 12px;
@@ -103,6 +105,11 @@ body {
 
   .main-content {
     overflow: visible;
+  }
+
+  .map-card {
+    flex: 0 0 45vh;
+    height: 45vh;
   }
 }
 
