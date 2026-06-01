@@ -41,6 +41,19 @@ export class TourList {
 
   transportTypes = Object.values(TransportType);
 
+  private tourImageMap: Record<TransportType, string> = {
+    [TransportType.Walk]: 'assets/walk-tour.png',
+    [TransportType.Hike]: 'assets/hike-tour.png',
+    [TransportType.Bike]: 'assets/bike-tour.png',
+    [TransportType.Car]:  'assets/drive-tour.png',
+    [TransportType.Run]:  'assets/run-tour.png',
+    [TransportType.Boat]: 'assets/drive-tour.png',
+  };
+
+  getTourImage(type: TransportType): string {
+    return this.tourImageMap[type] ?? 'assets/walk-tour.png';
+  }
+
   // Called when a tour card is clicked.
   // It updates both ViewModels so TourDetails and TourLog stay in sync.
   onTourClick(tour: Tour) {

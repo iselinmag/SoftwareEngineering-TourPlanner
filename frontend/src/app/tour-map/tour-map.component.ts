@@ -82,7 +82,7 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
       zoomAnimation: false,
       fadeAnimation: false,
       markerZoomAnimation: false,
-    }).setView([48.2082, 16.3738], 12);
+    }).setView([20, 0], 2);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
