@@ -35,18 +35,20 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
   private routeLayer: L.Polyline | null = null;
   private startMarker: L.Marker | null = null;
   private endMarker: L.Marker | null = null;
+  private resizeObserver: ResizeObserver | null = null;
 
   constructor() {
     effect(() => {
-      const tour = this.vm.selectedTour();
-      // only draw if map is already initialized
-      if (this.map) {
+        const tour = this.vm.selectedTour();
+        if (this.map) {
+        // tell leaflet the container may have resized so it remeasures everything
+        this.map.invalidateSize(false);
         this.drawRoute(
-          tour?.routeInformation ?? null,
-          tour?.fromLocation,
-          tour?.toLocation
+            tour?.routeInformation ?? null,
+            tour?.fromLocation,
+            tour?.toLocation
         );
-      }
+        }
     });
   }
 
@@ -87,6 +89,15 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
+    // Force Leaflet to re-measure the container after the current JS task completes.
+    // Even though waitForSize confirmed a non-zero size, the browser may not have
+    // finished its layout pass yet, so Leaflet's initial tile positioning can be off.
+    setTimeout(() => this.map?.invalidateSize(), 0);
+
+    // Re-measure whenever the card is resized (e.g. window resize, sidebar toggle).
+    this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
+    this.resizeObserver.observe(container);
+
     // draw the current tour route if one is already selected when the map loads
     const tour = this.vm.selectedTour();
     if (tour?.routeInformation) {
@@ -95,6 +106,8 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     if (this.map) {
       this.map.remove();
       this.map = null;

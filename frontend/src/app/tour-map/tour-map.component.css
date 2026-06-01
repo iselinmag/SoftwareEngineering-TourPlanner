@@ -1,12 +1,13 @@
-/* 
-  important: do NOT use overflow:hidden on the map container
-  leaflet calculates tile positions based on the container bounds
-  overflow:hidden clips those bounds in a way that misaligns everything
-  border-radius alone is fine — the clipping is the problem, not the rounding
+/*
+  Leaflet needs position relative on this div so its internal tiles
+  (which are position absolute) know where to anchor themselves.
+  overflow: hidden must NOT be set here — Leaflet positions its tile pane
+  with negative offsets, and overflow: hidden on the map div itself breaks
+  Leaflet's internal size calculations, causing tile gaps and misalignment.
+  Visual clipping for the rounded corners is handled by .map-card in app.component.css.
 */
 .map-container {
+  position: relative;
   width: 100%;
-  height: 50vh;
-  min-height: 400px;
-  border-radius: 12px;
+  height: 300px;
 }
