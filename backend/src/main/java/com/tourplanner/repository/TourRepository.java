@@ -15,11 +15,12 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
     // Spring generates these automatically — you don't write any SQL:
     // findAll(), findById(id), save(tour), deleteById(id), count(), etc.
 
-    // Custom full-text search: searches name, description, from, to
-    @Query("SELECT t FROM Tour t WHERE " +
+    // Custom full-text search: searches name, description, from, to, and tour log comments
+    @Query("SELECT DISTINCT t FROM Tour t LEFT JOIN t.tourLogs l WHERE " +
            "LOWER(t.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(t.description) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(t.fromLocation) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(t.toLocation) LIKE LOWER(CONCAT('%', :query, '%'))")
+           "LOWER(t.toLocation) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(l.comment) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Tour> searchTours(String query);
 }
