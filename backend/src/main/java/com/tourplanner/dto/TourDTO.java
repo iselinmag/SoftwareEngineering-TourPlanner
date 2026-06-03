@@ -15,6 +15,7 @@ public class TourDTO {
     private String estimatedTime;
     private String routeInformation;
     // Computed attributes (derived, not stored directly)
-    private int popularity;       // number of logs
-    private String childFriendliness;  // derived from difficulty/distance/time
+    private int popularity;            // score 0–100 combining avg rating and log volume
+    private String popularityLevel;    // human-readable label for the score
+    private String childFriendliness;  // derived from avg log difficulty
 }

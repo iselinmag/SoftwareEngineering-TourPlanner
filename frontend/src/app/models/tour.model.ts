@@ -21,6 +21,7 @@ export interface Tour {
   routeInformation?: string; 
 
   // computed by the backend, read only on the frontend
-  popularity?: number;
+  popularity?: number;        // score 0–100
+  popularityLevel?: string;   // human-readable label
   childFriendliness?: string;
 }

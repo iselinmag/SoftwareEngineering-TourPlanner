@@ -142,8 +142,11 @@ public class TourService {
         dto.setDistance(tour.getDistance());
         dto.setEstimatedTime(tour.getEstimatedTime());
         dto.setRouteInformation(tour.getRouteInformation());
-        // Computed: popularity = number of logs for this tour
-        dto.setPopularity((int) tourLogRepository.countByTourId(tour.getId()));
+        // Computed: popularity score (0–100) and level label
+        List<com.tourplanner.entity.TourLog> logs = tourLogRepository.findByTourId(tour.getId());
+        int popularityScore = computePopularityScore(logs);
+        dto.setPopularity(popularityScore);
+        dto.setPopularityLevel(computePopularityLevel(popularityScore, logs.isEmpty()));
         // Computed: child-friendliness (simple rule for now)
         dto.setChildFriendliness(computeChildFriendliness(tour));
         return dto;
@@ -163,12 +166,45 @@ public class TourService {
         return tour;
     }
 
+    // Popularity score (0–100): 70% from avg rating (1–5 scale), 30% from log volume (caps at 10 logs)
+    private int computePopularityScore(List<com.tourplanner.entity.TourLog> logs) {
+        if (logs.isEmpty()) return 0;
+        double avgRating = logs.stream()
+                .mapToInt(log -> log.getRating() != null ? log.getRating() : 1)
+                .average()
+                .orElse(1);
+        double ratingComponent  = (avgRating - 1.0) / 4.0 * 70.0;
+        double volumeComponent  = Math.min(logs.size() / 10.0, 1.0) * 30.0;
+        return (int) Math.round(ratingComponent + volumeComponent);
+    }
+
+    private String computePopularityLevel(int score, boolean noLogs) {
+        if (noLogs)      return "Unknown";
+        if (score <= 20) return "Not Recommended";
+        if (score <= 40) return "Hidden Gem";
+        if (score <= 60) return "Rising Star";
+        if (score <= 80) return "Popular";
+        return "Legendary";
+    }
+
     // Derived attribute: child-friendliness
-    // Rule: Easy + short distance = "Child Friendly", otherwise "Not Child Friendly"
+    // Maps average log difficulty to a rating: Easy=1, Medium=2, Hard=3
+    // avg <= 1.5 → Child Friendly, <= 2.5 → Moderate, > 2.5 → Not Child Friendly
     private String computeChildFriendliness(Tour tour) {
-        if (tour.getDistance() == null) return "Unknown";
-        if (tour.getDistance() <= 5) return "Child Friendly";
-        if (tour.getDistance() <= 15) return "Moderate";
+        List<com.tourplanner.entity.TourLog> logs = tourLogRepository.findByTourId(tour.getId());
+        if (logs.isEmpty()) return "Unknown";
+
+        double avg = logs.stream()
+                .mapToInt(log -> switch (log.getDifficulty()) {
+                    case Easy   -> 1;
+                    case Medium -> 2;
+                    case Hard   -> 3;
+                })
+                .average()
+                .orElse(0);
+
+        if (avg <= 1.5) return "Child Friendly";
+        if (avg <= 2.5) return "Moderate";
         return "Not Child Friendly";
     }
 }

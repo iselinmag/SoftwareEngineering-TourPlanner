@@ -71,9 +71,9 @@
       <div class="header-actions">
         <!-- transport type badge -->
         <span class="transport-badge">{{ tour.transportType }}</span>
-        <!-- popularity badge, only shown once the tour has at least one log -->
-        <span *ngIf="tour.popularity" class="popularity-badge">
-          ⭐ {{ tour.popularity }} {{ tour.popularity === 1 ? 'Review' : 'Reviews' }}
+        <!-- popularity badge, only shown once the tour has been reviewed -->
+        <span *ngIf="tour.popularityLevel && tour.popularityLevel !== 'Unknown'" class="popularity-badge">
+          ⭐ {{ tour.popularityLevel }}
         </span>
         <button (click)="enableEditMode(tour)" class="btn btn-warning">Edit</button>
         <button (click)="deleteTour(tour.id!)" class="btn btn-danger">Delete</button>
@@ -99,8 +99,7 @@
       <div class="info-row">
         <p>
           <strong>Popularity:</strong>
-          <!-- show number of logs, or "no logs yet" if zero -->
-          {{ tour.popularity ? tour.popularity + ' log(s)' : 'no logs yet' }}
+          {{ tour.popularityLevel && tour.popularityLevel !== 'Unknown' ? (tour.popularity + ' / 100') : 'No reviews yet' }}
         </p>
         <p>
           <strong>Child Friendly:</strong>
