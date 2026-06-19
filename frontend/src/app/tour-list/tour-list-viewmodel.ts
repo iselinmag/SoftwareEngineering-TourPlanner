@@ -72,4 +72,12 @@ export class TourListViewmodel {
   updateTour(updatedTour: Tour) {
     this.tourService.update(updatedTour);
   }
+
+  exportTours(): void {
+  this.tourService.exportTours();
+}
+
+importTours(file: File): void {
+  this.tourService.importTours(file);
+}
 }

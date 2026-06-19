@@ -81,4 +81,17 @@ export class TourList {
       this.tourForm.reset({ transportType: TransportType.Walk, distance: 0 });
     });
   }
+
+
+onImportFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+
+  if (!file) return;
+
+  this.listvm.importTours(file);
+
+  // Reset input so the same file can be selected again later
+  input.value = '';
+}
 }

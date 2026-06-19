@@ -20,6 +20,26 @@
     >✕</button>
   </div>
 
+  <div class="import-export-actions">
+  <button
+    type="button"
+    class="btn btn-secondary"
+    (click)="listvm.exportTours()"
+  >
+    Export JSON
+  </button>
+
+  <label class="btn btn-secondary import-label">
+    Import JSON
+    <input
+      type="file"
+      accept=".json,application/json"
+      hidden
+      (change)="onImportFileSelected($event)"
+    />
+  </label>
+</div>
+
   <div class="tour-form-container">
 
     <!-- Hide the form by default and wait for user click to toggle it and turn it visible -->

@@ -56,5 +56,16 @@ public class TourController {
     }
 
     // Isaline -> add Export and Import features (functions) and a button in Angular UI
-    
+    // GET /api/tours/export → exports all tours as JSON
+@GetMapping("/export")
+public ResponseEntity<List<TourDTO>> exportTours() {
+    return ResponseEntity.ok(tourService.exportTours());
+}
+
+// POST /api/tours/import → imports tours from JSON
+@PostMapping("/import")
+public ResponseEntity<Void> importTours(@RequestBody List<TourDTO> tours) {
+    tourService.importTours(tours);
+    return ResponseEntity.status(201).build();
+}
 }

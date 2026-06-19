@@ -130,6 +130,24 @@ public class TourService {
                 .collect(Collectors.toList());
     }
 
+    // EXPORT tours
+    public List<TourDTO> exportTours() {
+    logger.info("Exporting all tours");
+    return getAllTours();
+    }
+
+    // IMPORT tours
+    public void importTours(List<TourDTO> tourDtos) {
+    logger.info("Importing {} tours", tourDtos.size());
+
+    for (TourDTO dto : tourDtos) {
+        dto.setId(null); // imported tours should be created as new database rows
+        createTour(dto);
+    }
+    }
+
+    
+
     // --- Helper: convert Entity → DTO ---
     private TourDTO toDTO(Tour tour) {
         TourDTO dto = new TourDTO();
