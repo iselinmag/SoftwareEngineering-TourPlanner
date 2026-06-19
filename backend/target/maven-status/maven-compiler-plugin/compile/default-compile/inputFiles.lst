@@ -1,12 +1,12 @@
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/BackendApplication.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/controller/TourController.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/controller/TourLogController.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/dto/TourDTO.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/dto/TourLogDTO.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/entity/Tour.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/entity/TourLog.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/repository/TourLogRepository.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/repository/TourRepository.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/service/RouteService.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/service/TourLogService.java
-/Users/mk/Angular Projects/SWEN2-Tour-planner-FINAL/Untitled/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/service/TourService.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/BackendApplication.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/controller/TourController.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/controller/TourLogController.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/dto/TourDTO.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/dto/TourLogDTO.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/entity/Tour.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/entity/TourLog.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/repository/TourLogRepository.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/repository/TourRepository.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/service/RouteService.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/service/TourLogService.java
+/Users/iselinmagnussen/Desktop/tourplanner/SoftwareEngineering-TourPlanner/backend/src/main/java/com/tourplanner/service/TourService.java

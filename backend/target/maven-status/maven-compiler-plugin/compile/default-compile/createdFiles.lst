@@ -11,5 +11,6 @@ com/tourplanner/controller/TourLogController.class
 com/tourplanner/dto/TourDTO.class
 com/tourplanner/repository/TourLogRepository.class
 com/tourplanner/entity/Tour.class
+com/tourplanner/service/TourService$1.class
 com/tourplanner/repository/TourRepository.class
 com/tourplanner/service/TourLogService.class
