@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TourListViewmodel } from '../tour-list/tour-list-viewmodel';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Tour, TransportType } from '../models/tour.model';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-tour-details',
@@ -18,6 +19,7 @@ export class TourDetails {
   isEditMode = false;
   isSaving = false;      
   transportTypes = Object.values(TransportType);
+  auth = inject(AuthService);
 
   // The form uses null for the id field because Angular forms work with
   // null/string internally. We convert to number when we call the service.

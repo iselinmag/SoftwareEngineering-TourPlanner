@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class TourDTO {
     private Long id;
+    private String ownerUsername;   // who created this tour, used by the frontend to show or hide edit and delete
     private String name;
     private String description;
     private String fromLocation;

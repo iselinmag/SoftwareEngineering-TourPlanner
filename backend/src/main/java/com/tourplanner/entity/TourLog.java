@@ -34,4 +34,8 @@ public class TourLog {
     public enum Difficulty {
         Easy, Medium, Hard
     }
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

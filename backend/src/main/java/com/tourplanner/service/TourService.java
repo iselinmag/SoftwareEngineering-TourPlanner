@@ -2,6 +2,8 @@ package com.tourplanner.service;
 
 import com.tourplanner.dto.TourDTO;
 import com.tourplanner.entity.Tour;
+import com.tourplanner.exception.ForbiddenException;
+import com.tourplanner.exception.NotFoundException;
 import com.tourplanner.repository.TourRepository;
 import com.tourplanner.repository.TourLogRepository;
 import org.apache.logging.log4j.LogManager;
@@ -20,16 +22,19 @@ public class TourService {
     private final TourRepository tourRepository;
     private final TourLogRepository tourLogRepository;
     private final RouteService routeService;
+    private final CurrentUser currentUser;
 
     public TourService(TourRepository tourRepository,
                    TourLogRepository tourLogRepository,
-                   RouteService routeService) {
+                   RouteService routeService,
+                   CurrentUser currentUser) {
         this.tourRepository = tourRepository;
         this.tourLogRepository = tourLogRepository;
         this.routeService = routeService;
+        this.currentUser = currentUser;
     }
 
-    // GET all tours
+    // GET all tours, everyone can see every tour in the open model
     public List<TourDTO> getAllTours() {
         logger.info("Fetching all tours");
         return tourRepository.findAll()
@@ -38,11 +43,11 @@ public class TourService {
                 .collect(Collectors.toList());
     }
 
-    // GET single tour by ID
+    // GET single tour by ID, anyone can view any tour
     public TourDTO getTourById(Long id) {
         logger.info("Fetching tour with id {}", id);
         Tour tour = tourRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tour not found: " + id));
+                .orElseThrow(() -> new NotFoundException("Tour not found: " + id));
         return toDTO(tour);
     }
 
@@ -50,6 +55,7 @@ public class TourService {
     public TourDTO createTour(TourDTO dto) {
         logger.info("Creating tour: {}", dto.getName());
         Tour tour = toEntity(dto);
+        tour.setUser(currentUser.get());   // stamp the owner before saving
 
         try {
             // call openrouteservice to get real distance and time
@@ -77,11 +83,15 @@ public class TourService {
     }
 
 
-    // UPDATE tour
+    // UPDATE tour, only the owner of the tour may edit it
     public TourDTO updateTour(Long id, TourDTO dto) {
         logger.info("Updating tour id {}", id);
         Tour existing = tourRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tour not found: " + id));
+                .orElseThrow(() -> new NotFoundException("Tour not found: " + id));
+
+        if (!existing.getUser().getId().equals(currentUser.get().getId())) {
+            throw new ForbiddenException("This tour is not yours");
+        }
 
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
@@ -115,13 +125,23 @@ public class TourService {
         return toDTO(tourRepository.save(existing));
     }
 
-    // DELETE tour
+    // DELETE tour, only the owner of the tour may delete it
     public void deleteTour(Long id) {
         logger.info("Deleting tour id {}", id);
+
+        // load the tour first so we can check who owns it
+        Tour tour = tourRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Tour not found: " + id));
+
+        // the guard reading the name tag
+        if (!tour.getUser().getId().equals(currentUser.get().getId())) {
+            throw new ForbiddenException("This tour is not yours");
+        }
+
         tourRepository.deleteById(id);
     }
 
-    // SEARCH tours (full-text)
+    // SEARCH tours (full-text) across all tours
     public List<TourDTO> searchTours(String query) {
         logger.info("Searching tours with query: {}", query);
         return tourRepository.searchTours(query)
@@ -130,28 +150,30 @@ public class TourService {
                 .collect(Collectors.toList());
     }
 
-    // EXPORT tours
+    // Teamate task: Needs to be added: Also export the tour logs for each tour not only tours.
+    // EXPORT tours, note this now exports every tour in the open model.
     public List<TourDTO> exportTours() {
-    logger.info("Exporting all tours");
-    return getAllTours();
+        logger.info("Exporting all tours");
+        return getAllTours();
     }
 
     // IMPORT tours
     public void importTours(List<TourDTO> tourDtos) {
-    logger.info("Importing {} tours", tourDtos.size());
+        logger.info("Importing {} tours", tourDtos.size());
 
-    for (TourDTO dto : tourDtos) {
-        dto.setId(null); // imported tours should be created as new database rows
-        createTour(dto);
-    }
+        for (TourDTO dto : tourDtos) {
+            dto.setId(null); // imported tours should be created as new database rows
+            createTour(dto);
+        }
     }
 
-    
+
 
     // --- Helper: convert Entity → DTO ---
     private TourDTO toDTO(Tour tour) {
         TourDTO dto = new TourDTO();
         dto.setId(tour.getId());
+        dto.setOwnerUsername(tour.getUser().getUsername());
         dto.setName(tour.getName());
         dto.setDescription(tour.getDescription());
         dto.setFromLocation(tour.getFromLocation());

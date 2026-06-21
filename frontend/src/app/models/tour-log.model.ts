@@ -8,6 +8,7 @@ export enum Difficulty {
 
 export interface TourLog {
   id?: number;
+  ownerUsername?: string;   // who wrote this log
   tourId: number; 
   dateTime: Date | string;
   comment: string;

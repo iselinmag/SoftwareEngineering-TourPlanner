@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourLog } from '../models/tour-log.model';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-log-card', // HTML tag used to display this component
@@ -10,6 +12,7 @@ import { TourLog } from '../models/tour-log.model';
   styleUrl: './log-card.component.css',
 })
 export class LogCardComponent {
+  auth = inject(AuthService);
 
   // Receives a single log object from the parent component
   // The "!" tells TypeScript this value will always be provided

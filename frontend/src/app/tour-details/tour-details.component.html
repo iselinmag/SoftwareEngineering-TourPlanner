@@ -75,8 +75,10 @@
         <span *ngIf="tour.popularityLevel && tour.popularityLevel !== 'Unknown'" class="popularity-badge">
           ⭐ {{ tour.popularityLevel }}
         </span>
-        <button (click)="enableEditMode(tour)" class="btn btn-warning">Edit</button>
-        <button (click)="deleteTour(tour.id!)" class="btn btn-danger">Delete</button>
+        <ng-container *ngIf="tour.ownerUsername === auth.currentUsername()">
+          <button (click)="enableEditMode(tour)" class="btn btn-warning">Edit</button>
+          <button (click)="deleteTour(tour.id!)" class="btn btn-danger">Delete</button>
+        </ng-container>
       </div>
     </div>
 

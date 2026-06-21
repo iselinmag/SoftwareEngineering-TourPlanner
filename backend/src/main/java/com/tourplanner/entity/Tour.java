@@ -41,4 +41,10 @@ public class Tour {
     public enum TransportType {
         Walk, Hike, Bike, Car, Boat, Run
     }
+
+    // many tours can belong to one user
+    // the user_id column is the name stamp
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

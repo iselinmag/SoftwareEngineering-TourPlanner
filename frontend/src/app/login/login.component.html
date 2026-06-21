@@ -1,0 +1,18 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Welcome back</h1>
+    <p class="auth-subtitle">Log in to your Tour Planner account</p>
+
+    <label>Username</label>
+    <input type="text" [(ngModel)]="username" placeholder="your username" />
+
+    <label>Password</label>
+    <input type="password" [(ngModel)]="password" placeholder="your password" />
+
+    <button (click)="submit()">Log in</button>
+
+    <p class="auth-switch">
+      Need an account? <a routerLink="/register">Register here</a>
+    </p>
+  </div>
+</div>

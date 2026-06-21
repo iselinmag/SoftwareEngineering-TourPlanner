@@ -6,7 +6,7 @@
   <p><strong>Total Time:</strong> {{ log.totalTime }}</p>
   <p><strong>Rating:</strong> {{ log.rating }}</p>
 
-  <div class="log-actions">
+  <div class="log-actions" *ngIf="log.ownerUsername === auth.currentUsername()">
     <button (click)="onEdit()">Edit</button>
     <button class="delete-button" (click)="onDelete()">Delete</button>
   </div>

@@ -11,6 +11,7 @@ export enum TransportType {
 
 export interface Tour {
   id?: number; // optional field
+  ownerUsername?: string;   // who created this tour
   name: string;
   description: string;
   fromLocation: string;
