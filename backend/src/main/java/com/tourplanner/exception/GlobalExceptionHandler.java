@@ -27,4 +27,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", ex.getMessage()));
     }
+
+    // someone sent data that breaks our field rules -> 400 bad request
+    // we collect each broken field's message so the frontend can show them
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidation(
+            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new java.util.HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).body(errors);
+    }
 }

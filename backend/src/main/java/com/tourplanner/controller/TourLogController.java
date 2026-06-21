@@ -5,6 +5,7 @@ import com.tourplanner.service.TourLogService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/tours/{tourId}/logs")  // Nested under tours
@@ -26,7 +27,7 @@ public class TourLogController {
     // POST /api/tours/1/logs → create a log for tour 1
     @PostMapping
     public ResponseEntity<TourLogDTO> createLog(@PathVariable Long tourId,
-                                                 @RequestBody TourLogDTO dto) {
+                                                 @Valid @RequestBody TourLogDTO dto) {
         dto.setTourId(tourId);  // ensure tourId from URL is used
         return ResponseEntity.status(201).body(tourLogService.createLog(dto));
     }
@@ -35,7 +36,7 @@ public class TourLogController {
     @PutMapping("/{logId}")
     public ResponseEntity<TourLogDTO> updateLog(@PathVariable Long tourId,
                                                  @PathVariable Long logId,
-                                                 @RequestBody TourLogDTO dto) {
+                                                 @Valid @RequestBody TourLogDTO dto) {
         dto.setTourId(tourId);
         return ResponseEntity.ok(tourLogService.updateLog(logId, dto));
     }

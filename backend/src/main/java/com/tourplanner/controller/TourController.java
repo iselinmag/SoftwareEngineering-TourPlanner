@@ -5,6 +5,7 @@ import com.tourplanner.service.TourService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController                  // Combines @Controller + @ResponseBody
 @RequestMapping("/api/tours")    // All methods in this class start with /api/tours
@@ -37,14 +38,14 @@ public class TourController {
 
     // POST /api/tours  (body = TourDTO JSON) → creates tour, returns created tour
     @PostMapping
-    public ResponseEntity<TourDTO> createTour(@RequestBody TourDTO dto) {
+    public ResponseEntity<TourDTO> createTour(@Valid @RequestBody TourDTO dto) {
         TourDTO created = tourService.createTour(dto);
         return ResponseEntity.status(201).body(created);
     }
 
     // PUT /api/tours/1  (body = updated TourDTO JSON) → updates tour
     @PutMapping("/{id}")
-    public ResponseEntity<TourDTO> updateTour(@PathVariable Long id, @RequestBody TourDTO dto) {
+    public ResponseEntity<TourDTO> updateTour(@PathVariable Long id, @Valid @RequestBody TourDTO dto) {
         return ResponseEntity.ok(tourService.updateTour(id, dto));
     }
 
