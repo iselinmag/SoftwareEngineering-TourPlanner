@@ -3,6 +3,7 @@ package com.tourplanner.service;
 import com.tourplanner.dto.TourDTO;
 import com.tourplanner.entity.Tour;
 import com.tourplanner.entity.TourLog;
+import com.tourplanner.entity.User;
 import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.repository.TourRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,11 +33,17 @@ class TourServiceTest {
     @Mock
     private RouteService routeService;
 
+    // NEW: the service now depends on CurrentUser (owner stamping + ownership checks),
+    // so the test must provide it as a mock too.
+    @Mock
+    private CurrentUser currentUser;
+
     private TourService tourService;
 
     @BeforeEach
     void setUp() {
-        tourService = new TourService(tourRepository, tourLogRepository, routeService);
+        // NEW: pass the currentUser mock as the 4th constructor argument
+        tourService = new TourService(tourRepository, tourLogRepository, routeService, currentUser);
     }
 
     @Test
@@ -77,6 +84,9 @@ class TourServiceTest {
     void createTour_whenRouteServiceReturnsRoute_savesTourWithRouteData() {
         TourDTO input = sampleDto("Museum Trip");
 
+        // NEW: createTour stamps the owner via currentUser.get()
+        when(currentUser.get()).thenReturn(sampleUser(1L));
+
         RouteService.RouteResult routeResult =
                 new RouteService.RouteResult(
                         12.5,
@@ -108,6 +118,7 @@ class TourServiceTest {
         input.setDistance(5.0);
         input.setEstimatedTime("00:45");
 
+        when(currentUser.get()).thenReturn(sampleUser(1L));
         when(routeService.getRoute("Vienna", "Prater", "Walk")).thenReturn(null);
 
         when(tourRepository.save(any(Tour.class))).thenAnswer(invocation -> {
@@ -130,6 +141,7 @@ class TourServiceTest {
         input.setDistance(8.0);
         input.setEstimatedTime("01:00");
 
+        when(currentUser.get()).thenReturn(sampleUser(1L));
         when(routeService.getRoute("Vienna", "Prater", "Walk"))
                 .thenThrow(new RuntimeException("API down"));
 
@@ -156,6 +168,8 @@ class TourServiceTest {
         update.setDescription("New description");
 
         when(tourRepository.findById(1L)).thenReturn(Optional.of(existing));
+        // NEW: updateTour checks ownership; current user id must match the tour owner id (1L)
+        when(currentUser.get()).thenReturn(sampleUser(1L));
         when(routeService.getRoute("Vienna", "Prater", "Walk")).thenReturn(null);
         when(tourRepository.save(any(Tour.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(tourLogRepository.findByTourId(1L)).thenReturn(List.of());
@@ -176,7 +190,13 @@ class TourServiceTest {
     }
 
     @Test
-    void deleteTour_callsRepositoryDeleteById() {
+    void deleteTour_whenOwner_callsRepositoryDeleteById() {
+        // NEW: deleteTour now loads the tour and verifies ownership before deleting,
+        // so we must stub findById and currentUser, then verify deleteById is reached.
+        Tour existing = sampleTour(5L, "To delete");
+        when(tourRepository.findById(5L)).thenReturn(Optional.of(existing));
+        when(currentUser.get()).thenReturn(sampleUser(1L));
+
         tourService.deleteTour(5L);
 
         verify(tourRepository).deleteById(5L);
@@ -304,6 +324,7 @@ class TourServiceTest {
     void createTour_sendsCorrectEntityToRepository() {
         TourDTO input = sampleDto("Captured Tour");
 
+        when(currentUser.get()).thenReturn(sampleUser(1L));
         when(routeService.getRoute("Vienna", "Prater", "Walk")).thenReturn(null);
 
         when(tourRepository.save(any(Tour.class))).thenAnswer(invocation -> {
@@ -323,6 +344,14 @@ class TourServiceTest {
         assertThat(captor.getValue().getTransportType()).isEqualTo(Tour.TransportType.Walk);
     }
 
+    // NEW: helper that builds the logged-in user used for owner stamping / ownership checks
+    private User sampleUser(Long id) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername("tester");
+        return user;
+    }
+
     private Tour sampleTour(Long id, String name) {
         Tour tour = new Tour();
         tour.setId(id);
@@ -334,6 +363,8 @@ class TourServiceTest {
         tour.setDistance(4.0);
         tour.setEstimatedTime("00:40");
         tour.setRouteInformation("[]");
+        // NEW: toDTO reads tour.getUser().getUsername(), so the owner must be set
+        tour.setUser(sampleUser(1L));
         return tour;
     }
 

@@ -1,4 +1,4 @@
-// IF CHANGE MESSAGE FIRST!
+import { TourLog } from './tour-log.model';
 
 export enum TransportType {
   Walk = 'Walk',
@@ -10,19 +10,23 @@ export enum TransportType {
 }
 
 export interface Tour {
-  id?: number; // optional field
-  ownerUsername?: string;   // who created this tour
+  id?: number;
+  ownerUsername?: string;
+
   name: string;
   description: string;
   fromLocation: string;
   toLocation: string;
   transportType: TransportType;
-  distance: number; 
-  estimatedTime: string; 
-  routeInformation?: string; 
 
-  // computed by the backend, read only on the frontend
-  popularity?: number;        // score 0–100
-  popularityLevel?: string;   // human-readable label
+  distance: number;
+  estimatedTime: string;
+  routeInformation?: string;
+
+  popularity?: number;
+  popularityLevel?: string;
   childFriendliness?: string;
+
+  // Included when exporting/importing tours as JSON
+  tourLogs?: TourLog[];
 }

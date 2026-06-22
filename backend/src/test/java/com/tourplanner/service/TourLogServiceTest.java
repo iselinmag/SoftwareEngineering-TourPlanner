@@ -3,6 +3,7 @@ package com.tourplanner.service;
 import com.tourplanner.dto.TourLogDTO;
 import com.tourplanner.entity.Tour;
 import com.tourplanner.entity.TourLog;
+import com.tourplanner.entity.User;
 import com.tourplanner.repository.TourLogRepository;
 import com.tourplanner.repository.TourRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,11 +31,16 @@ class TourLogServiceTest {
     @Mock
     private TourRepository tourRepository;
 
+    // NEW: the service now depends on CurrentUser (author stamping + ownership checks)
+    @Mock
+    private CurrentUser currentUser;
+
     private TourLogService tourLogService;
 
     @BeforeEach
     void setUp() {
-        tourLogService = new TourLogService(tourLogRepository, tourRepository);
+        // NEW: pass the currentUser mock as the 3rd constructor argument
+        tourLogService = new TourLogService(tourLogRepository, tourRepository, currentUser);
     }
 
     @Test
@@ -66,6 +72,8 @@ class TourLogServiceTest {
         TourLogDTO input = sampleDto(1L);
 
         when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
+        // NEW: createLog stamps the author via currentUser.get()
+        when(currentUser.get()).thenReturn(sampleUser(1L));
 
         when(tourLogRepository.save(any(TourLog.class))).thenAnswer(invocation -> {
             TourLog saved = invocation.getArgument(0);
@@ -97,6 +105,7 @@ class TourLogServiceTest {
         TourLogDTO input = sampleDto(1L);
 
         when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
+        when(currentUser.get()).thenReturn(sampleUser(1L));
         when(tourLogRepository.save(any(TourLog.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         tourLogService.createLog(input);
@@ -118,6 +127,8 @@ class TourLogServiceTest {
         update.setRating(2);
 
         when(tourLogRepository.findById(10L)).thenReturn(Optional.of(existing));
+        // NEW: updateLog checks ownership; current user id must match the log author id (1L)
+        when(currentUser.get()).thenReturn(sampleUser(1L));
         when(tourLogRepository.save(any(TourLog.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         TourLogDTO result = tourLogService.updateLog(10L, update);
@@ -137,7 +148,14 @@ class TourLogServiceTest {
     }
 
     @Test
-    void deleteLog_callsRepositoryDeleteById() {
+    void deleteLog_whenAuthor_callsRepositoryDeleteById() {
+        // NEW: deleteLog now loads the log and verifies ownership before deleting,
+        // so we must stub findById and currentUser, then verify deleteById is reached.
+        Tour tour = sampleTour(1L);
+        TourLog existing = sampleLog(10L, tour);
+        when(tourLogRepository.findById(10L)).thenReturn(Optional.of(existing));
+        when(currentUser.get()).thenReturn(sampleUser(1L));
+
         tourLogService.deleteLog(10L);
 
         verify(tourLogRepository).deleteById(10L);
@@ -159,6 +177,14 @@ class TourLogServiceTest {
         assertThat(result.getRating()).isEqualTo(4);
     }
 
+    // NEW: helper that builds the logged-in user used for author stamping / ownership checks
+    private User sampleUser(Long id) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername("tester");
+        return user;
+    }
+
     private Tour sampleTour(Long id) {
         Tour tour = new Tour();
         tour.setId(id);
@@ -176,6 +202,8 @@ class TourLogServiceTest {
         log.setTotalDistance(6.5);
         log.setTotalTime("01:10");
         log.setRating(4);
+        // NEW: toDTO reads log.getUser().getUsername(), so the author must be set
+        log.setUser(sampleUser(1L));
         return log;
     }
 
