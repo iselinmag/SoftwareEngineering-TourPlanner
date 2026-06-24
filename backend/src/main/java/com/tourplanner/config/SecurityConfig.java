@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 // the front desk is open to everyone
                 .requestMatchers("/api/auth/**").permitAll()
+                // tour images can be viewed by anyone, just like tours themselves
+                .requestMatchers("/images/**").permitAll()
                 // everything else needs a valid ticket
                 .anyRequest().authenticated()
             )

@@ -23,6 +23,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else if (err.status === 404) {
         // not found, the thing you asked for does not exist
         alert(backendMessage || 'That item could not be found.');
+      } else if (err.status === 413) {
+        alert(backendMessage || 'That file is too large.');
       } else if (err.status === 401) {
         // token missing or expired, send them back to login
         localStorage.removeItem('token');

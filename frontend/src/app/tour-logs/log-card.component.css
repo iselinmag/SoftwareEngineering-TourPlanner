@@ -35,3 +35,17 @@
 .delete-button:hover {
   background: #fecaca;
 }
+
+.image-upload {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: #e8e8e8;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.image-upload:hover {
+  background: #dcdcdc;
+}

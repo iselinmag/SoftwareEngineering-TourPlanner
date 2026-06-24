@@ -9,5 +9,11 @@
   <div class="log-actions" *ngIf="log.ownerUsername === auth.currentUsername()">
     <button (click)="onEdit()">Edit</button>
     <button class="delete-button" (click)="onDelete()">Delete</button>
+
+    <!-- add or replace this log's image, only visible to the log's author -->
+    <label class="image-upload">
+      Add image
+      <input type="file" accept="image/*" (change)="onImageSelected($event)" hidden />
+    </label>
   </div>
 </div>

@@ -38,4 +38,13 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage()));
         return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).body(errors);
     }
+
+    // someone tried to upload a file bigger than the allowed limit -> 413 payload too large
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> handleTooLarge(
+            org.springframework.web.multipart.MaxUploadSizeExceededException ex) {
+        return ResponseEntity
+                .status(org.springframework.http.HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(Map.of("error", "That image is too large. Please choose a smaller file."));
+    }
 }

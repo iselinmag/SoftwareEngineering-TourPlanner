@@ -31,6 +31,10 @@ public class TourLog {
     private String totalTime;
     private Integer rating;
 
+    // the file name of the image attached to this log, or null if none.
+    // the real image lives on disk, this is just the paper slip pointing to it.
+    private String imagePath;
+
     public enum Difficulty {
         Easy, Medium, Hard
     }

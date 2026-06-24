@@ -1,0 +1,22 @@
+<div class="gallery" *ngIf="images().length > 0; else noImages">
+  <h3 class="gallery-title">Tour Images</h3>
+
+  <div class="gallery-viewer">
+    <button class="arrow left" (click)="prev()" aria-label="Previous image">&#10094;</button>
+
+    <img class="gallery-image" [src]="currentImage()" alt="Tour image" />
+
+    <button class="arrow right" (click)="next()" aria-label="Next image">&#10095;</button>
+  </div>
+
+  <p class="gallery-counter">
+    {{ currentIndex() % images().length + 1 }} / {{ images().length }}
+  </p>
+</div>
+
+<ng-template #noImages>
+  <div class="gallery empty">
+    <h3 class="gallery-title">Tour Images</h3>
+    <p class="gallery-hint">No images yet. Add one when writing a tour log.</p>
+  </div>
+</ng-template>

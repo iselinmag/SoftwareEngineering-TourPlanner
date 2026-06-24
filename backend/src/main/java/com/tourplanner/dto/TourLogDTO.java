@@ -33,4 +33,7 @@ public class TourLogDTO {
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating must be at most 5")
     private Integer rating;
+
+    // the file name of this log's image, or null. the frontend builds the full url from it.
+    private String imagePath;
 }

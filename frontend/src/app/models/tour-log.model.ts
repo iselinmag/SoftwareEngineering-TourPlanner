@@ -16,4 +16,5 @@ export interface TourLog {
   totalDistance: number;
   totalTime: string;
   rating: number; 
+  imagePath?: string;       // file name of this log's image, or undefined
 }

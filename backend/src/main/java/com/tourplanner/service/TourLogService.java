@@ -10,6 +10,7 @@ import com.tourplanner.repository.TourRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,13 +22,16 @@ public class TourLogService {
     private final TourLogRepository tourLogRepository;
     private final TourRepository tourRepository;
     private final CurrentUser currentUser;
+    private final FileStorageService fileStorageService;
 
     public TourLogService(TourLogRepository tourLogRepository,
                           TourRepository tourRepository,
-                          CurrentUser currentUser) {
+                          CurrentUser currentUser,
+                          FileStorageService fileStorageService) {
         this.tourLogRepository = tourLogRepository;
         this.tourRepository = tourRepository;
         this.currentUser = currentUser;
+        this.fileStorageService = fileStorageService;
     }
 
     // GET all logs for a specific tour, anyone can read all logs in the open model
@@ -39,6 +43,17 @@ public class TourLogService {
                 .collect(Collectors.toList());
     }
 
+    // GET just the image file names for a tour, used by the image gallery.
+    // we only include logs that actually have an image.
+    public List<String> getImagesForTour(Long tourId) {
+        logger.info("Fetching images for tour {}", tourId);
+        return tourLogRepository.findByTourId(tourId)
+                .stream()
+                .map(TourLog::getImagePath)
+                .filter(path -> path != null && !path.isBlank())
+                .collect(Collectors.toList());
+    }
+
     // CREATE log, anyone can add a log to any tour, we just record who wrote it
     public TourLogDTO createLog(TourLogDTO dto) {
         logger.info("Creating log for tour {}", dto.getTourId());
@@ -47,6 +62,23 @@ public class TourLogService {
         TourLog log = toEntity(dto, tour);
         log.setUser(currentUser.get());   // stamp the author of this log
         return toDTO(tourLogRepository.save(log));
+    }
+
+    // UPLOAD an image for a log, only the author of the log may add one
+    public TourLogDTO uploadImage(Long logId, MultipartFile file) {
+        logger.info("Uploading image for log {}", logId);
+        TourLog existing = tourLogRepository.findById(logId)
+                .orElseThrow(() -> new NotFoundException("Log not found: " + logId));
+
+        // the guard reading the name tag on the log itself
+        if (!existing.getUser().getId().equals(currentUser.get().getId())) {
+            throw new ForbiddenException("This log is not yours");
+        }
+
+        // save the file to disk and keep the stored name on the log
+        String storedName = fileStorageService.store(file);
+        existing.setImagePath(storedName);
+        return toDTO(tourLogRepository.save(existing));
     }
 
     // UPDATE log, only the author of the log may edit it
@@ -96,6 +128,7 @@ public class TourLogService {
         dto.setTotalDistance(log.getTotalDistance());
         dto.setTotalTime(log.getTotalTime());
         dto.setRating(log.getRating());
+        dto.setImagePath(log.getImagePath());
         return dto;
     }
 
