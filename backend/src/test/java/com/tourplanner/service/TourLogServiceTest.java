@@ -21,6 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import com.tourplanner.exception.ForbiddenException;
+import org.springframework.web.multipart.MultipartFile;
 
 // these are the tests for the tour log kitchen (TourLogService).
 // same idea as the tour tests: we hand the service fake versions of the parts it needs
@@ -167,6 +169,55 @@ class TourLogServiceTest {
         tourLogService.deleteLog(10L);
 
         verify(tourLogRepository).deleteById(10L);
+    }
+
+    @Test
+    void updateLog_whenNotAuthor_throwsForbidden() {
+        // this log was written by user 1 (sampleLog makes user 1 the author)
+        Tour tour = sampleTour(1L);
+        TourLog existing = sampleLog(10L, tour);
+        when(tourLogRepository.findById(10L)).thenReturn(Optional.of(existing));
+
+        // but user 2 is the one trying to change it
+        when(currentUser.get()).thenReturn(sampleUser(2L));
+
+        assertThatThrownBy(() -> tourLogService.updateLog(10L, sampleDto(1L)))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessageContaining("not yours");
+
+        // the edit must never be saved
+        verify(tourLogRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteLog_whenNotAuthor_throwsForbiddenAndDoesNotDelete() {
+        Tour tour = sampleTour(1L);
+        TourLog existing = sampleLog(10L, tour);
+        when(tourLogRepository.findById(10L)).thenReturn(Optional.of(existing));
+        when(currentUser.get()).thenReturn(sampleUser(2L));
+
+        assertThatThrownBy(() -> tourLogService.deleteLog(10L))
+                .isInstanceOf(ForbiddenException.class);
+
+        // the delete must never actually happen
+        verify(tourLogRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void uploadImage_whenNotAuthor_throwsForbiddenAndDoesNotStore() {
+        Tour tour = sampleTour(1L);
+        TourLog existing = sampleLog(10L, tour);
+        when(tourLogRepository.findById(10L)).thenReturn(Optional.of(existing));
+        when(currentUser.get()).thenReturn(sampleUser(2L));
+
+        // a fake image, it should never actually get used
+        MultipartFile file = mock(MultipartFile.class);
+
+        assertThatThrownBy(() -> tourLogService.uploadImage(10L, file))
+                .isInstanceOf(ForbiddenException.class);
+
+        // the file must never be written to disk
+        verify(fileStorageService, never()).store(any());
     }
 
     @Test
