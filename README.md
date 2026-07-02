@@ -1,5 +1,7 @@
 # Tour Planner
 
+Git repository: https://github.com/iselinmag/SoftwareEngineering-TourPlanner
+
 Tour Planner is a web app for planning tours and keeping logs of the ones you have done. You can make a tour, see it drawn on a map, and write logs about how each trip went. Every user has their own account, and the app keeps track of who made what.
 
 ## Features
