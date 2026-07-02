@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import com.tourplanner.exception.ForbiddenException;
 
 // these are the tests for the tour kitchen (TourService).
 // a test checks that the code does what we expect without needing a real database or the
@@ -205,6 +206,38 @@ class TourServiceTest {
         tourService.deleteTour(5L);
 
         verify(tourRepository).deleteById(5L);
+    }
+
+    @Test
+    void updateTour_whenNotOwner_throwsForbidden() {
+        // this tour belongs to user 1 (sampleTour always makes user 1 the owner)
+        Tour existing = sampleTour(1L, "someone elses tour");
+        when(tourRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        // but the person asking right now is user 2, a different person
+        when(currentUser.get()).thenReturn(sampleUser(2L));
+
+        // so trying to edit it should be blocked with a not yours error
+        assertThatThrownBy(() -> tourService.updateTour(1L, sampleDto("hijacked name")))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessageContaining("not yours");
+
+        // the important part: the change must never reach the save step
+        verify(tourRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteTour_whenNotOwner_throwsForbiddenAndDoesNotDelete() {
+        // again the tour is user 1's, but user 2 is the one asking
+        Tour existing = sampleTour(5L, "not yours to delete");
+        when(tourRepository.findById(5L)).thenReturn(Optional.of(existing));
+        when(currentUser.get()).thenReturn(sampleUser(2L));
+
+        assertThatThrownBy(() -> tourService.deleteTour(5L))
+                .isInstanceOf(ForbiddenException.class);
+
+        // the delete must never actually happen
+        verify(tourRepository, never()).deleteById(any());
     }
 
     @Test
