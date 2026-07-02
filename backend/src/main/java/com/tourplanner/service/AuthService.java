@@ -6,6 +6,9 @@ import com.tourplanner.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+// this handles signing up and logging in.
+// it is the reception desk: it takes a username and password, checks them, scrambles the
+// password so the real one is never stored, and hands back a login ticket when all is well.
 @Service
 public class AuthService {
 

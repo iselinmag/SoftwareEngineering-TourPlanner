@@ -1,6 +1,3 @@
-
-// <Matej
-
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourLogViewmodel } from '../tour-logs/tour-log-viewmodel';
@@ -8,6 +5,9 @@ import { TourListViewmodel } from '../tour-list/tour-list-viewmodel';
 import { Tour, TransportType } from '../models/tour.model';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
+// this is the tour list screen on the left side.
+// it shows every tour as a card, holds the search box, and holds the form for making a new
+// tour. clicking a card tells the rest of the app which tour to show details and logs for.
 @Component({
   selector: 'app-tour-list',
   standalone: true,
@@ -16,21 +16,23 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
   styleUrl: './tour-list.component.css',
 })
 export class TourList {
-  // Inject our ViewModels
-  // inject() asks Angular to provide the shared singleton instance (meaning instead of copying the viewmodel and creating duplicates it just uses 1 instead) of each service.
+  // grab the shared helpers that hold the tour list and log state.
+  // inject asks angular for the one shared copy, so every screen sees the same data
+  // instead of each making its own separate copy.
   listvm = inject(TourListViewmodel);
   logVm = inject(TourLogViewmodel);
 
-  // Hide the form by default, toggled by clicking the form header
+  // the new tour form starts hidden, clicking its header opens and closes it
   isFormVisible = false
 
-  // FormBuilder is an Angular utility that makes building reactive forms easier.
-  private fb = inject(FormBuilder) // we use it for Creating and updating tours
+  // a little angular helper that makes building forms less fiddly, used for the create form
+  private fb = inject(FormBuilder)
 
-  // Create form structure
+  // the shape of the create tour form: each line is one box, with its starting value and rules.
+  // a validator is just a rule the box must pass, like "this cannot be empty" or "at least 3 letters".
   tourForm = this.fb.group({
     id: [''],
-    name: ['', [Validators.required, Validators.minLength(3)]],// QUESTION: What is Validator?
+    name: ['', [Validators.required, Validators.minLength(3)]],
     description: ['', Validators.required],
     fromLocation: ['', Validators.required],
     toLocation: ['', Validators.required],
@@ -50,20 +52,21 @@ export class TourList {
     [TransportType.Boat]: 'assets/drive-tour.png',
   };
 
+  // pick the right picture for a tour based on its travel type, falling back to the walk one
   getTourImage(type: TransportType): string {
     return this.tourImageMap[type] ?? 'assets/walk-tour.png';
   }
 
-  // Called when a tour card is clicked.
-  // It updates both ViewModels so TourDetails and TourLog stay in sync.
+  // runs when a tour card is clicked.
+  // it tells both shared helpers which tour is now chosen, so the details and logs update too.
+  // on a small phone screen it also slides the map and details into view so you do not have to scroll.
   onTourClick(tour: Tour) {
     if (tour.id) {
-      this.listvm.selectTour(tour.id); // update list view
-      this.logVm.setSelectedTour(tour.id); // update log view
+      this.listvm.selectTour(tour.id);
+      this.logVm.setSelectedTour(tour.id);
 
-      // Logic to automatically scroll to have map full screen when selected tour on mobile devices
       const mapDetailsSection = document.getElementById('mapDetailsSection');
-      const mobileBreakpoint = 900; 
+      const mobileBreakpoint = 900;
 
       if (mapDetailsSection && window.innerWidth <= mobileBreakpoint) {
         mapDetailsSection.scrollIntoView({ behavior: 'smooth' });
@@ -71,27 +74,28 @@ export class TourList {
     }
   }
 
-  // called when user clicks create tour
-  // sends data to viewmodel then resets form
+  // runs when the create button is pressed.
+  // if the form breaks a rule we stop, otherwise we send the new tour off and only clear the
+  // form once the backend confirms it was saved, so nothing is lost if saving fails.
   addTour() {
     if (this.tourForm.invalid) return;
     const tourData = this.tourForm.value as Tour;
     this.listvm.addTour(tourData, () => {
-      // Only reset the form after the backend confirms the tour was saved
       this.tourForm.reset({ transportType: TransportType.Walk, distance: 0 });
     });
   }
 
+  // runs when the user picks a file to import.
+  // it hands the chosen file off to be loaded, then clears the picker so the same file can be
+  // chosen again later if needed.
+  onImportFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
 
-onImportFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
+    if (!file) return;
 
-  if (!file) return;
+    this.listvm.importTours(file);
 
-  this.listvm.importTours(file);
-
-  // Reset input so the same file can be selected again later
-  input.value = '';
-}
+    input.value = '';
+  }
 }

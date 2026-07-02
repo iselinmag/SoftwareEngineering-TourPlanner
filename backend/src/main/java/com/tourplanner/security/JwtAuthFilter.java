@@ -13,6 +13,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+// this is the ticket checker at the door.
+// every request that comes in passes through here first. it looks for the login ticket,
+// checks it is real, and if so notes who is asking. if there is no ticket or a bad one,
+// it just lets the request carry on as a stranger and the security rules deal with it later.
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -24,6 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userRepository = userRepository;
     }
 
+    // runs once for every incoming request, reads the ticket and remembers who it belongs to
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,

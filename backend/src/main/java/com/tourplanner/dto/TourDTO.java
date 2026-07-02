@@ -7,6 +7,10 @@ import lombok.Data;
 
 import java.util.List;
 
+// this is the tour shape we actually send to and from the frontend.
+// the real Tour entity carries database bits the browser does not need, so this is
+// the tidy travel version of it, like packing only what you need into a suitcase.
+// it also carries a few extras the frontend likes to show, such as popularity.
 @Data
 public class TourDTO {
 
@@ -36,7 +40,7 @@ public class TourDTO {
     private String popularityLevel;
     private String childFriendliness;
 
-    // Used only for import/export.
-    // Normal tour list/details can leave this as null.
+    // only filled in when we export or import tours together with their logs.
+    // the normal tour list and details screens leave this empty.
     private List<TourLogDTO> tourLogs;
 }

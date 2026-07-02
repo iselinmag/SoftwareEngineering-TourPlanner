@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { TourListViewmodel } from '../tour-list/tour-list-viewmodel';
 
+// this is the map panel that draws the chosen tour's route.
+// it uses leaflet (a ready made map library) to show a real world map, then draws a blue line
+// for the route with a pin at the start and a red pin at the end. when you pick a different
+// tour it wipes the old line and draws the new one.
+
+// the two pin pictures: a normal one for the start, a red one for the end
 const defaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
@@ -38,10 +44,12 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
   private resizeObserver: ResizeObserver | null = null;
 
   constructor() {
+    // watch for the picked tour changing. every time it does, redraw the route for the new one.
+    // effect is like a tripwire that runs this again whenever the tour it reads changes.
     effect(() => {
         const tour = this.vm.selectedTour();
         if (this.map) {
-        // tell leaflet the container may have resized so it remeasures everything
+        // tell leaflet the map area may have changed size so it measures itself again
         this.map.invalidateSize(false);
         this.drawRoute(
             tour?.routeInformation ?? null,
@@ -52,18 +60,18 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  // runs once the panel is on screen.
+  // we hold off building the map until its box actually has a size, otherwise the map tiles
+  // line up wrong. so we wait for a real size first, then build.
   ngAfterViewInit() {
-    // we wait for the container to have a non-zero size before creating the map
-    // this solves the tile misalignment problem permanently
     this.waitForSize(this.mapContainer.nativeElement, () => {
       this.initMap();
     });
   }
 
-  // keeps checking the container dimensions every 50ms
-  // only calls the callback once the container has real width and height
-  // this is more reliable than any fixed setTimeout because it reacts to
-  // actual layout completion rather than guessing a time
+  // keep peeking at the box every so often, and only run the given step once the box has a real
+  // width and height. this is safer than just waiting a guessed amount of time, because it
+  // reacts to the page actually being ready rather than hoping it is ready by then.
   private waitForSize(el: HTMLElement, callback: () => void) {
     const check = () => {
       if (el.offsetWidth > 0 && el.offsetHeight > 0) {
@@ -75,6 +83,8 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
     check();
   }
 
+  // build the actual map: create it, add the map picture tiles, and draw the route if one is
+  // already picked. it also watches for the box changing size so the map keeps lining up.
   private initMap() {
     const container = this.mapContainer.nativeElement;
 
@@ -89,22 +99,23 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
 
-    // Force Leaflet to re-measure the container after the current JS task completes.
-    // Even though waitForSize confirmed a non-zero size, the browser may not have
-    // finished its layout pass yet, so Leaflet's initial tile positioning can be off.
+    // nudge the map to measure itself once more right after this runs. even though we waited
+    // for a real size, the page may not have fully settled yet, so this catches any last shift.
     setTimeout(() => this.map?.invalidateSize(), 0);
 
-    // Re-measure whenever the card is resized (e.g. window resize, sidebar toggle).
+    // whenever the map box changes size later (window resize, sidebar opening), measure again
     this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
     this.resizeObserver.observe(container);
 
-    // draw the current tour route if one is already selected when the map loads
+    // if a tour is already picked when the map first loads, draw its route straight away
     const tour = this.vm.selectedTour();
     if (tour?.routeInformation) {
       this.drawRoute(tour.routeInformation, tour.fromLocation, tour.toLocation);
     }
   }
 
+  // runs when the panel is closed. tidy up the map and the size watcher so nothing keeps
+  // running in the background and wasting memory after we are gone.
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
@@ -114,12 +125,18 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // draw a tour's route on the map.
+  // step by step: wipe any old route, unpack the saved list of points, join them into a blue
+  // line, drop a pin at the start and end, then zoom the map so the whole route fits on screen.
   private drawRoute(geometryJson: string | null, from?: string, to?: string) {
     if (!this.map) return;
     this.clearRoute();
     if (!geometryJson) return;
 
     try {
+      // the route was saved as text, so we unpack it back into a list of points.
+      // each point is stored as longitude then latitude, and leaflet wants them the other way,
+      // so we flip them here.
       const coords: number[][] = JSON.parse(geometryJson);
       const latLngs: L.LatLng[] = coords.map(([lon, lat]) => L.latLng(lat, lon));
       if (latLngs.length === 0) return;
@@ -145,6 +162,7 @@ export class TourMapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // rub out the current route and its two pins, so we have a clean map before drawing a new one
   private clearRoute() {
     if (!this.map) return;
     if (this.routeLayer) { this.map.removeLayer(this.routeLayer); this.routeLayer = null; }

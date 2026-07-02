@@ -2,6 +2,9 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TourLogService } from '../services/tour-log.service';
 
+// this is the image gallery for the chosen tour.
+// it shows one picture at a time with next and previous buttons, like flipping through a photo
+// album. the pictures come from the shared log service, gathered from all the tour's logs.
 @Component({
   selector: 'app-tour-images',
   standalone: true,

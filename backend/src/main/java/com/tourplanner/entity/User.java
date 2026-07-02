@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// this is the blueprint for one user account.
+// it is deliberately tiny, just an id, a username and a scrambled password.
+// each field is a column and each user object becomes one row in the users table.
 @Entity
 @Table(name = "users")
 @Data

@@ -21,9 +21,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+// these are the tests for the tour kitchen (TourService).
+// a test checks that the code does what we expect without needing a real database or the
+// real map service. instead we hand the service stand ins we control (mocks, fake versions
+// of the real parts) and then check it reacts the right way. each method below is one
+// small scene we set up and then check the ending of.
 @ExtendWith(MockitoExtension.class)
 class TourServiceTest {
 
+    // fake versions of the parts the service leans on, so we can steer what they return
     @Mock
     private TourRepository tourRepository;
 
@@ -33,16 +39,15 @@ class TourServiceTest {
     @Mock
     private RouteService routeService;
 
-    // NEW: the service now depends on CurrentUser (owner stamping + ownership checks),
-    // so the test must provide it as a mock too.
+    // the service needs to know who is logged in, so we hand it a fake current user too
     @Mock
     private CurrentUser currentUser;
 
     private TourService tourService;
 
+    // runs before each test, builds a fresh service wired up to the fakes above
     @BeforeEach
     void setUp() {
-        // NEW: pass the currentUser mock as the 4th constructor argument
         tourService = new TourService(tourRepository, tourLogRepository, routeService, currentUser);
     }
 
@@ -84,7 +89,7 @@ class TourServiceTest {
     void createTour_whenRouteServiceReturnsRoute_savesTourWithRouteData() {
         TourDTO input = sampleDto("Museum Trip");
 
-        // NEW: createTour stamps the owner via currentUser.get()
+        // when the service asks who is logged in, hand back our test user
         when(currentUser.get()).thenReturn(sampleUser(1L));
 
         RouteService.RouteResult routeResult =
@@ -168,7 +173,7 @@ class TourServiceTest {
         update.setDescription("New description");
 
         when(tourRepository.findById(1L)).thenReturn(Optional.of(existing));
-        // NEW: updateTour checks ownership; current user id must match the tour owner id (1L)
+        // the tour is owned by user 1, so we log in as user 1 to be allowed to change it
         when(currentUser.get()).thenReturn(sampleUser(1L));
         when(routeService.getRoute("Vienna", "Prater", "Walk")).thenReturn(null);
         when(tourRepository.save(any(Tour.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -191,8 +196,8 @@ class TourServiceTest {
 
     @Test
     void deleteTour_whenOwner_callsRepositoryDeleteById() {
-        // NEW: deleteTour now loads the tour and verifies ownership before deleting,
-        // so we must stub findById and currentUser, then verify deleteById is reached.
+        // deleting first checks the tour exists and belongs to you, so we set up both,
+        // then check the delete actually reaches the database
         Tour existing = sampleTour(5L, "To delete");
         when(tourRepository.findById(5L)).thenReturn(Optional.of(existing));
         when(currentUser.get()).thenReturn(sampleUser(1L));
@@ -344,7 +349,7 @@ class TourServiceTest {
         assertThat(captor.getValue().getTransportType()).isEqualTo(Tour.TransportType.Walk);
     }
 
-    // NEW: helper that builds the logged-in user used for owner stamping / ownership checks
+    // small helper that builds a test user, used as the owner in the scenes above
     private User sampleUser(Long id) {
         User user = new User();
         user.setId(id);
@@ -363,7 +368,7 @@ class TourServiceTest {
         tour.setDistance(4.0);
         tour.setEstimatedTime("00:40");
         tour.setRouteInformation("[]");
-        // NEW: toDTO reads tour.getUser().getUsername(), so the owner must be set
+        // the service reads the owner's username, so a test tour must have an owner set
         tour.setUser(sampleUser(1L));
         return tour;
     }

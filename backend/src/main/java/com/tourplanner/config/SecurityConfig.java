@@ -16,15 +16,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.tourplanner.security.JwtAuthFilter;
 import java.util.List;
 
+// this is the security desk for the whole backend.
+// it decides who is allowed through, which doors are open to everyone, and how the
+// frontend is allowed to talk to us. think of it as the guard and the rulebook at the entrance.
 @Configuration
 public class SecurityConfig {
 
+    // our own ticket checker, it reads the login token on each request
     private final JwtAuthFilter jwtAuthFilter;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
+    // the main rulebook, it says which requests are let through and which need a valid login
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

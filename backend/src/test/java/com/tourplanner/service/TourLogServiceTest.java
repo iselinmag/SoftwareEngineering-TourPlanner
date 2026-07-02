@@ -22,9 +22,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+// these are the tests for the tour log kitchen (TourLogService).
+// same idea as the tour tests: we hand the service fake versions of the parts it needs
+// (mocks) so we can steer what they return, then check the service behaves the right way.
+// each method below sets up one small scene and checks how it ends.
 @ExtendWith(MockitoExtension.class)
 class TourLogServiceTest {
 
+    // fake versions of the parts the service leans on
     @Mock
     private TourLogRepository tourLogRepository;
 
@@ -34,12 +39,13 @@ class TourLogServiceTest {
     @Mock
     private CurrentUser currentUser;
 
-    // the service also needs the file storage helper for image uploads
+    // a fake file saver, so image tests do not touch the real disk
     @Mock
     private FileStorageService fileStorageService;
 
     private TourLogService tourLogService;
 
+    // runs before each test, builds a fresh service wired up to the fakes above
     @BeforeEach
     void setUp() {
         tourLogService = new TourLogService(tourLogRepository, tourRepository, currentUser, fileStorageService);
@@ -74,7 +80,7 @@ class TourLogServiceTest {
         TourLogDTO input = sampleDto(1L);
 
         when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
-        // NEW: createLog stamps the author via currentUser.get()
+        // when the service asks who is logged in, hand back our test user
         when(currentUser.get()).thenReturn(sampleUser(1L));
 
         when(tourLogRepository.save(any(TourLog.class))).thenAnswer(invocation -> {
@@ -129,7 +135,7 @@ class TourLogServiceTest {
         update.setRating(2);
 
         when(tourLogRepository.findById(10L)).thenReturn(Optional.of(existing));
-        // NEW: updateLog checks ownership; current user id must match the log author id (1L)
+        // the log was written by user 1, so we log in as user 1 to be allowed to edit it
         when(currentUser.get()).thenReturn(sampleUser(1L));
         when(tourLogRepository.save(any(TourLog.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -151,8 +157,8 @@ class TourLogServiceTest {
 
     @Test
     void deleteLog_whenAuthor_callsRepositoryDeleteById() {
-        // NEW: deleteLog now loads the log and verifies ownership before deleting,
-        // so we must stub findById and currentUser, then verify deleteById is reached.
+        // deleting first checks the log exists and was written by you, so we set up both,
+        // then check the delete actually reaches the database
         Tour tour = sampleTour(1L);
         TourLog existing = sampleLog(10L, tour);
         when(tourLogRepository.findById(10L)).thenReturn(Optional.of(existing));
@@ -179,7 +185,7 @@ class TourLogServiceTest {
         assertThat(result.getRating()).isEqualTo(4);
     }
 
-    // NEW: helper that builds the logged-in user used for author stamping / ownership checks
+    // small helper that builds a test user, used as the author in the scenes above
     private User sampleUser(Long id) {
         User user = new User();
         user.setId(id);
@@ -204,7 +210,7 @@ class TourLogServiceTest {
         log.setTotalDistance(6.5);
         log.setTotalTime("01:10");
         log.setRating(4);
-        // NEW: toDTO reads log.getUser().getUsername(), so the author must be set
+        // the service reads the author's username, so a test log must have an author set
         log.setUser(sampleUser(1L));
         return log;
     }

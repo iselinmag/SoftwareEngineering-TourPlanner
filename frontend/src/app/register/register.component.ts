@@ -3,6 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+// this is the sign up screen.
+// same idea as the login screen: two boxes for a new username and password, and pressing the
+// button hands them to the auth service to create the account.
 @Component({
   selector: 'app-register',
   standalone: true,

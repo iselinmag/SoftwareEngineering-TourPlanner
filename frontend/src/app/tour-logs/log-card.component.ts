@@ -5,10 +5,14 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { TourLogService } from '../services/tour-log.service';
 
+// this is one single log card, the little box that shows one log.
+// it is used over and over, once per log, by the logs screen above it. it shows the log and
+// its edit, delete and add image buttons. it does not do the work itself: when a button is
+// pressed it just tells its parent screen, like passing a note up to whoever is in charge.
 @Component({
-  selector: 'app-log-card', // HTML tag used to display this component
-  standalone: true, // no Angular module needed
-  imports: [CommonModule], // enables *ngIf, *ngFor, etc.
+  selector: 'app-log-card',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './log-card.component.html',
   styleUrl: './log-card.component.css',
 })
@@ -16,29 +20,24 @@ export class LogCardComponent {
   auth = inject(AuthService);
   private logService = inject(TourLogService);
 
-  // Receives a single log object from the parent component
-  // The "!" tells TypeScript this value will always be provided
+  // the one log this card should show, handed in by the parent screen
   @Input() log!: TourLog;
 
-  // Emits an event when the user wants to edit this log
-  // Sends the full log object back to the parent
+  // the note we pass up when the user wants to edit, carrying the whole log
   @Output() edit = new EventEmitter<TourLog>();
 
-  // Emits an event when the user wants to delete this log
-  // Sends only the log ID back to the parent
+  // the note we pass up when the user wants to delete, carrying just the log id
   @Output() delete = new EventEmitter<number>();
 
 
-  // Called when user clicks the "Edit" button
+  // edit button pressed: pass the log up to the parent to handle
   onEdit() {
-    // Send the current log to parent component
     this.edit.emit(this.log);
   }
 
 
-  // Called when user clicks the "Delete" button
+  // delete button pressed: pass the id up, but only if the log actually has one
   onDelete() {
-    // Only send if log has an ID (safety check)
     if (this.log.id !== undefined) {
       this.delete.emit(this.log.id);
     }

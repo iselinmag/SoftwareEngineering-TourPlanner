@@ -2,50 +2,48 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { TourLog, Difficulty } from '../models/tour-log.model';
 import { TourLogService } from '../services/tour-log.service';
 
-// TourLogViewmodel is now ONLY responsible for UI state:
-//   - Which tour is currently selected (so we know which logs to show)
-//   - Filtering the logs list to only the selected tour
-//   - Forwarding add/update/delete calls to TourLogService
-//   - Form validation (belongs to the UI layer, not the data layer)
-//
-// The actual data and CRUD logic live in TourLogService.
+// this is the middle layer for the logs screen (a viewmodel).
+// like a waiter, the screen talks only to this, and this passes the real work to the log
+// service kitchen. it also remembers which tour is open and checks the form before saving.
 @Injectable({
-  providedIn: 'root', // makes this service a shared singleton across the whole app
+  providedIn: 'root', // one shared copy used everywhere in the app
 })
 export class TourLogViewmodel {
 
-  // Holds the ID of the currently selected tour
-  // null means no tour is selected
+  // the id of the tour currently open, or nothing if none is picked
   selectedTourId = signal<number | null>(null);
 
-   // Inject the data service
+  // the kitchen we send all the real work to
   private logService = inject(TourLogService);
 
-  // Now just expose all logs loaded for the current tour
-  // (the service already filters them via loadForTour)
+  // the logs for the open tour, passed straight through from the service so the screen shows them
   readonly filteredLogs = this.logService.logs;
 
-  // Updates which tour is currently selected
-  // Called from the tour list component
-  setSelectedTour(tourId: number) {         
+  // remember which tour is now open and ask the service to load its logs.
+  // called from the tour list when a tour card is clicked.
+  setSelectedTour(tourId: number) {
     this.selectedTourId.set(tourId);
-    this.logService.loadForTour(tourId);    // fetch from backend
+    this.logService.loadForTour(tourId);
   }
 
-  // --- Delegate CRUD to the service ---
+  // the calls below just pass the order straight to the service kitchen
 
+  // add a new log
   addLog(log: TourLog) {
     this.logService.add(log);
   }
 
+  // save changes to a log
   updateLog(updatedLog: TourLog) {
     this.logService.update(updatedLog);
   }
 
-  deleteLog(id: number, tourId: number) {   // add tourId parameter
+  // delete a log, passing both the log and its tour since the service needs both
+  deleteLog(id: number, tourId: number) {
     this.logService.delete(id, tourId);
   }
-  // Validation belongs in the ViewModel (UI concern, not data concern)
+
+  // check a log has the basics before saving: a comment, a rating from 1 to 5, and a date
   isValid(log: TourLog): boolean {
     return (
       !!log.comment &&

@@ -46,7 +46,7 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Spring Boot DevTools — auto-restarts backend when you save -->
+		<!-- postgresql driver, so the app can talk to the postgres database -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>

@@ -9,9 +9,10 @@ import org.springframework.http.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// First transform to and from location name to coordinates
-        // Then use coordinates to call API to get distance and etc.
-        
+// this works out real routes by asking an outside map service (openrouteservice).
+// it happens in two steps. first it turns a place name like "vienna" into map coordinates
+// (numbers that pin a spot on earth). then it feeds two of those points to the map service
+// and gets back the distance, the travel time, and the line to draw on the map.
 @Service
 public class RouteService {
 

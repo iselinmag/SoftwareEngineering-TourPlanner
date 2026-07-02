@@ -5,6 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+// this is the front door for signing up and logging in.
+// a controller is the part that listens for requests coming from the browser and answers them.
+// it does no real work itself, it just takes the request and passes it to the auth service.
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200")

@@ -8,6 +8,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.time.LocalDate;
 
+// this is the tour log shape we send to and from the frontend.
+// same idea as TourDTO, it is the tidy travel version of a log, only the fields the
+// browser needs, plus the little rules below that check the data before we save it.
 @Data
 public class TourLogDTO {
     private Long id;

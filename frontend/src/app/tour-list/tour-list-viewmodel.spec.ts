@@ -5,6 +5,11 @@ import { TourListViewmodel } from './tour-list-viewmodel';
 import { TourService } from '../services/tour.service';
 import { Tour, TransportType } from '../models/tour.model';
 
+// these are the tests for the tour list middle layer (the viewmodel).
+// we hand it a fake tour service we control, then check the viewmodel passes work along to it
+// correctly and keeps track of small screen things like which tour is picked and the search word.
+
+// a small helper that builds a stand in tour for the tests below
 function makeTour(id: number, name: string): Tour {
   return {
     id,

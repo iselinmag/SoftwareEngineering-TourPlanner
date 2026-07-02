@@ -5,6 +5,9 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Tour, TransportType } from '../models/tour.model';
 import { AuthService } from '../services/auth.service';
 
+// this is the tour details panel shown in the middle when you pick a tour.
+// it shows the chosen tour's info, and if the tour is yours it lets you switch into edit mode
+// to change or delete it. it borrows the picked tour from the shared list helper.
 @Component({
   selector: 'app-tour-details',
   standalone: true,
@@ -16,15 +19,15 @@ export class TourDetails {
   vm = inject(TourListViewmodel);
   private fb = inject(FormBuilder);
 
-  isEditMode = false;
-  isSaving = false;      
+  isEditMode = false;   // are we currently editing, or just looking?
+  isSaving = false;
   transportTypes = Object.values(TransportType);
   auth = inject(AuthService);
 
-  // The form uses null for the id field because Angular forms work with
-  // null/string internally. We convert to number when we call the service.
+  // the shape of the edit form, one line per box with its starting value and rules.
+  // the id starts as nothing because the form fills it in from the tour being edited.
   editForm = this.fb.group({
-    id: [null as number | null],       // FIX: was [''] — id is a number, not a string
+    id: [null as number | null],
     name: ['', [Validators.required, Validators.minLength(3)]],
     description: ['', Validators.required],
     fromLocation: ['', Validators.required],
@@ -36,16 +39,16 @@ export class TourDetails {
   });
 
   constructor() {
-    // Automatically exit edit mode if the user clicks a different tour.
-    // effect() re-runs every time selectedTour() signal changes.
+    // if the user clicks a different tour while editing, drop out of edit mode automatically.
+    // effect runs this again every time the picked tour changes, like a little tripwire.
     effect(() => {
       this.vm.selectedTour();
       this.isEditMode = false;
     });
   }
 
-  // converts the backend string into a safe css class name
-  // "Child Friendly" -> "good", "Moderate" -> "ok", anything else -> "bad"
+  // turn the friendliness text into a short colour label used by the styling.
+  // "child friendly" becomes good (green), "moderate" becomes ok, anything else becomes bad.
   getFriendlinessClass(value: string | undefined): string {
     if (!value) return 'bad';
     if (value === 'Child Friendly') return 'good';
@@ -53,32 +56,32 @@ export class TourDetails {
     return 'bad';
   }
 
-  // Switches to edit mode and fills the form with the current tour's data.
+  // switch into edit mode and pre fill the form with the tour's current details
   enableEditMode(tour: Tour) {
     this.isEditMode = true;
-    this.editForm.patchValue(tour);    // FIX: works now because form id is number | null
+    this.editForm.patchValue(tour);
   }
 
+  // back out of editing without saving
   cancelEdit() {
     this.isEditMode = false;
   }
 
-  // Sends the updated tour to the ViewModel and returns to read-only view.
+  // save the edited tour.
+  // we hand the changes to the shared helper. the backend works out the new distance and time
+  // from the route, and when its reply comes back the shared list swaps in the updated tour,
+  // so the screen shows the fresh values on its own without us setting them here.
   saveEdit() {
     if (this.editForm.invalid) return;
     this.isSaving = true;
 
-    // The backend will recalculate distance and estimatedTime via RouteService.
-    // When the HTTP response comes back, TourService.update() replaces the tour
-    // in the signal with the updated version (including new distance/time),
-    // so the view mode will automatically show the correct values.
     this.vm.updateTour(this.editForm.value as Tour);
 
     this.isEditMode = false;
     this.isSaving = false;
   }
 
-  // FIX: parameter type changed from string to number to match Tour.id type
+  // delete the tour, but ask for a yes first so it does not happen by accident
   deleteTour(id: number) {
     if (confirm('Are you sure you want to delete this tour?')) {
       this.vm.deleteTour(id);

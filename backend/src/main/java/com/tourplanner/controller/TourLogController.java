@@ -8,8 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import jakarta.validation.Valid;
 
+// this is the front door for everything to do with tour logs and their images.
+// a controller just listens for browser requests and hands the work to the service.
+// every address here starts with a tour id, because a log always belongs to one tour.
 @RestController
-@RequestMapping("/api/tours/{tourId}")  // nested under a tour
+@RequestMapping("/api/tours/{tourId}")  // every route here lives under one tour
 @CrossOrigin(origins = "http://localhost:4200")
 public class TourLogController {
 

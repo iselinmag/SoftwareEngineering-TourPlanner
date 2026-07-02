@@ -2,6 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
 
+// these are the tests for the outer app shell.
+// they just make sure the shell starts up, carries the right title, and has the slot where
+// each page gets shown. small sanity checks that the app can even get off the ground.
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({

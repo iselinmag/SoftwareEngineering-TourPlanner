@@ -8,6 +8,10 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+// this is the ticket machine.
+// when someone logs in we hand them a small signed token (jwt, a login ticket the browser
+// keeps and shows on every request). this class makes those tickets and reads them back.
+// the signature is like a wax seal, if anyone changes the ticket the seal breaks and we spot it.
 @Service
 public class JwtService {
 
@@ -18,6 +22,7 @@ public class JwtService {
     // how long a ticket stays valid, in milliseconds. here, one day
     private static final long EXPIRY = 1000 * 60 * 60 * 24;
 
+    // turns our secret text into the key used to stamp and check the wax seal
     private SecretKey key() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }

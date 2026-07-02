@@ -4,6 +4,9 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 
+// this is the map of pages in the app.
+// it says which web address shows which screen, like a signpost pointing each path to a room.
+// the home page is guarded, so you have to be logged in to reach it.
 export const routes: Routes = [
   // open pages, anyone can reach these
   { path: 'login', component: LoginComponent },

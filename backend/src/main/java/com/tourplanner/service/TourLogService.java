@@ -14,9 +14,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// this is the kitchen for tour logs, where the real work happens.
+// the controller passes orders here, and this class reads and writes logs in the database,
+// handles the images attached to them, and makes sure people can only change their own logs.
+// the rule of thumb: anyone may read logs and add new ones, but only the author may edit or
+// delete their own, like a shared notebook where you can only cross out your own entries.
 @Service
 public class TourLogService {
 
+    // the logger writes notes into the log file so we can see later what the app did
     private static final Logger logger = LogManager.getLogger(TourLogService.class);
 
     private final TourLogRepository tourLogRepository;
@@ -117,6 +123,7 @@ public class TourLogService {
         tourLogRepository.deleteById(id);
     }
 
+    // turn a log from the database into the tidy shape the frontend gets back
     private TourLogDTO toDTO(TourLog log) {
         TourLogDTO dto = new TourLogDTO();
         dto.setId(log.getId());
@@ -132,6 +139,7 @@ public class TourLogService {
         return dto;
     }
 
+    // go the other way: turn the shape the frontend sent into a log ready for the database
     private TourLog toEntity(TourLogDTO dto, Tour tour) {
         TourLog log = new TourLog();
         log.setTour(tour);

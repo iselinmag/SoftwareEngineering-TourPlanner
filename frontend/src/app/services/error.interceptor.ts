@@ -3,6 +3,9 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
+// this is the safety net that catches errors coming back from the backend.
+// instead of every screen having to handle failures itself, this one place looks at what
+// went wrong and shows the user a clear popup, or bounces them to login if their ticket died.
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
 
