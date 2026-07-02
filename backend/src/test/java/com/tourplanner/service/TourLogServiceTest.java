@@ -31,16 +31,18 @@ class TourLogServiceTest {
     @Mock
     private TourRepository tourRepository;
 
-    // NEW: the service now depends on CurrentUser (author stamping + ownership checks)
     @Mock
     private CurrentUser currentUser;
+
+    // the service also needs the file storage helper for image uploads
+    @Mock
+    private FileStorageService fileStorageService;
 
     private TourLogService tourLogService;
 
     @BeforeEach
     void setUp() {
-        // NEW: pass the currentUser mock as the 3rd constructor argument
-        tourLogService = new TourLogService(tourLogRepository, tourRepository, currentUser);
+        tourLogService = new TourLogService(tourLogRepository, tourRepository, currentUser, fileStorageService);
     }
 
     @Test
