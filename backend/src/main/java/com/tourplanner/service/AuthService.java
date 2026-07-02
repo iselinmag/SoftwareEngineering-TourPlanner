@@ -1,6 +1,8 @@
 package com.tourplanner.service;
 
 import com.tourplanner.entity.User;
+import com.tourplanner.exception.ConflictException;
+import com.tourplanner.exception.UnauthorizedException;
 import com.tourplanner.repository.UserRepository;
 import com.tourplanner.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +29,7 @@ public class AuthService {
     // sign up a brand new user
     public String register(String username, String rawPassword) {
         if (userRepository.findByUsername(username).isPresent()) {
-            throw new RuntimeException("Username already taken");
+            throw new ConflictException("Username already taken");
         }
         User user = new User();
         user.setUsername(username);
@@ -41,10 +43,10 @@ public class AuthService {
     // log an existing user in
     public String login(String username, String rawPassword) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Wrong username or password"));
+                .orElseThrow(() -> new UnauthorizedException("Wrong username or password"));
         // compare the typed password against the stored scramble
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-            throw new RuntimeException("Wrong username or password");
+            throw new UnauthorizedException("Wrong username or password");
         }
         return jwtService.makeToken(username);
     }

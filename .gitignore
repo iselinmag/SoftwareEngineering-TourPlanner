@@ -20,5 +20,9 @@ frontend/.angular/
 frontend/node_modules/
 
 # secret config never commit the real one
-backend/src/main/resources/application.propertiesbackend/target/
+backend/src/main/resources/application.properties
+backend/target/
 uploads/
+
+# log files, these are generated at runtime and should never be committed
+logs/

@@ -28,6 +28,22 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", ex.getMessage()));
     }
 
+    // someone picked something already taken, like a username -> 409 conflict
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<Map<String, String>> handleConflict(ConflictException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    // someone's login details did not check out -> 401 unauthorized
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
     // someone sent data that breaks our field rules -> 400 bad request
     // we collect each broken field's message so the frontend can show them
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)

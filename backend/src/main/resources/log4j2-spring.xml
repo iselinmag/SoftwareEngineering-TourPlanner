@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- this sets up where the backend writes its log messages.
+     spring boot finds this file on its own because of the name log4j2-spring.xml.
+     it sends every message to two places at once: the console and a file on disk. -->
+<Configuration status="WARN">
+
+    <!-- the shape of one log line: the time, how serious it is (level), which class wrote it,
+         then the message itself -->
+    <Properties>
+        <Property name="pattern">%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- the console, same as before, shows logs in the terminal while the app runs -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern}"/>
+        </Console>
+
+        <!-- the file on disk. a rolling file means it does not grow forever:
+             a fresh file is started each day, and also once a file hits 10 megabytes,
+             and only the 10 newest files are kept, older ones are thrown away -->
+        <RollingFile name="File"
+                     fileName="logs/tourplanner.log"
+                     filePattern="logs/tourplanner-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${pattern}"/>
+            <Policies>
+                <!-- start a new file each day -->
+                <TimeBasedTriggeringPolicy/>
+                <!-- start a new file once this one reaches 10 megabytes -->
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <!-- keep at most the 10 newest files -->
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- our own code, log from info level and up, into both the console and the file -->
+        <Logger name="com.tourplanner" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+
+        <!-- everything else, the normal info level, also into both places -->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+</Configuration>
