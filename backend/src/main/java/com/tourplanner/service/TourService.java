@@ -151,17 +151,53 @@ public class TourService {
         tourRepository.deleteById(id);
     }
 
-    // find tours that match a typed word, then hand back the tidy shapes
+    // search in two passes. the database finds matches in the stored fields (name,
+    // description, locations, log comments). but popularity and child friendliness are
+    // worked out on the fly and never stored, so the database cannot see them - for those
+    // we build the finished dto for every tour and check the computed values ourselves.
     public List<TourDTO> searchTours(String query) {
         logger.info("Searching tours with query: {}", query);
 
-        return tourRepository.searchTours(query)
+        String q = query == null ? "" : query.toLowerCase().trim();
+
+        // pass 1: what the database can find in the stored columns
+        List<TourDTO> results = tourRepository.searchTours(query)
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+
+        java.util.Set<Long> alreadyFound = results.stream()
+                .map(TourDTO::getId)
+                .collect(Collectors.toSet());
+
+        // pass 2: what only we can find, in the computed values
+        for (Tour tour : tourRepository.findAll()) {
+            if (alreadyFound.contains(tour.getId())) {
+                continue; // already in the result list, skip it
+            }
+            TourDTO dto = toDTO(tour);
+            if (matchesComputedValues(dto, q)) {
+                results.add(dto);
+            }
+        }
+
+        return results;
     }
 
-    // export: pack up every tour together with its logs, so the whole lot can be saved to a file
+    // does the search word match one of the values we calculate ourselves?
+    private boolean matchesComputedValues(TourDTO dto, String q) {
+        if (q.isBlank()) {
+            return false;
+        }
+        return (dto.getPopularityLevel() != null
+                    && dto.getPopularityLevel().toLowerCase().contains(q))
+            || (dto.getChildFriendliness() != null
+                    && dto.getChildFriendliness().toLowerCase().contains(q))
+            || String.valueOf(dto.getPopularity()).equals(q);
+    }
+
+    // export: gather every tour together with all of its logs, ready to be saved as a file.
+    // we use the "with logs" shape here so the whole dataset can be restored later.
     public List<TourDTO> exportTours() {
         logger.info("Exporting all tours with logs");
 
@@ -335,9 +371,11 @@ public class TourService {
         return "Legendary";
     }
 
-    // work out how child friendly a tour is by looking at how hard people found it.
-    // we give each log a number for difficulty (easy is 1, medium is 2, hard is 3), take the
-    // average, and the gentler that average, the more child friendly the tour is.
+    // how child friendly is this tour? the requirement says to weigh three things from the
+    // logs: how hard people found it, how long it took, and how far it was. each factor is
+    // scored 1 (fine for kids) to 3 (not for kids), and the average of the factors we
+    // actually have decides the label. a factor that is missing simply does not count,
+    // so a tour with only difficulty recorded is judged on difficulty alone, like before.
     private String computeChildFriendliness(Tour tour) {
         List<TourLog> logs = tourLogRepository.findByTourId(tour.getId());
 
@@ -345,6 +383,10 @@ public class TourService {
             return "Unknown";
         }
 
+        double sum = 0;
+        int factors = 0;
+
+        // factor 1: difficulty. Easy=1, Medium=2, Hard=3
         double avgDifficulty = logs.stream()
                 .mapToInt(log -> switch (log.getDifficulty()) {
                     case Easy -> 1;
@@ -353,15 +395,83 @@ public class TourService {
                 })
                 .average()
                 .orElse(0);
+        sum += avgDifficulty;
+        factors++;
 
-        if (avgDifficulty <= 1.5) {
+        // factor 2: distance. up to 5 km is fine for kids, up to 15 km is a stretch,
+        // anything longer is not a childrens trip
+        double avgDistance = logs.stream()
+                .filter(log -> log.getTotalDistance() != null)
+                .mapToDouble(TourLog::getTotalDistance)
+                .average()
+                .orElse(-1);
+        if (avgDistance >= 0) {
+            sum += avgDistance <= 5 ? 1 : (avgDistance <= 15 ? 2 : 3);
+            factors++;
+        }
+
+        // factor 3: time. up to 2 hours is fine, up to 5 hours is a stretch, longer is not.
+        // totalTime is free text, so we only count it when we can actually read a duration
+        double avgMinutes = logs.stream()
+                .map(log -> parseMinutes(log.getTotalTime()))
+                .filter(java.util.Objects::nonNull)
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(-1);
+        if (avgMinutes >= 0) {
+            sum += avgMinutes <= 120 ? 1 : (avgMinutes <= 300 ? 2 : 3);
+            factors++;
+        }
+
+        double score = sum / factors;
+
+        if (score <= 1.5) {
             return "Child Friendly";
         }
-
-        if (avgDifficulty <= 2.5) {
+        if (score <= 2.5) {
             return "Moderate";
         }
-
         return "Not Child Friendly";
+    }
+
+    // try to read a duration in minutes out of free text like "2h 30m", "90 min" or "1:30".
+    // returns null when the text cannot be understood, so bad input never skews the score.
+    private Double parseMinutes(String totalTime) {
+        if (totalTime == null || totalTime.isBlank()) {
+            return null;
+        }
+        String t = totalTime.toLowerCase().trim();
+
+        // "1:30" style -> hours:minutes
+        java.util.regex.Matcher clock = java.util.regex.Pattern
+                .compile("^(\\d{1,2}):(\\d{2})$").matcher(t);
+        if (clock.matches()) {
+            return Double.parseDouble(clock.group(1)) * 60
+                + Double.parseDouble(clock.group(2));
+        }
+
+        double minutes = 0;
+        boolean found = false;
+
+        java.util.regex.Matcher hours = java.util.regex.Pattern
+                .compile("(\\d+(?:\\.\\d+)?)\\s*h").matcher(t);
+        if (hours.find()) {
+            minutes += Double.parseDouble(hours.group(1)) * 60;
+            found = true;
+        }
+
+        java.util.regex.Matcher mins = java.util.regex.Pattern
+                .compile("(\\d+)\\s*m").matcher(t);
+        if (mins.find()) {
+            minutes += Double.parseDouble(mins.group(1));
+            found = true;
+        }
+
+        // a bare number like "90" is read as minutes
+        if (!found && t.matches("\\d+")) {
+            return Double.parseDouble(t);
+        }
+
+        return found ? minutes : null;
     }
 }

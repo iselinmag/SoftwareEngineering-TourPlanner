@@ -1,8 +1,9 @@
 package com.tourplanner.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.util.List;
 
 // this is the blueprint for one tour.
@@ -10,7 +11,8 @@ import java.util.List;
 // and each tour object we make becomes one row saved in the database.
 @Entity                          // tells the database to build a table out of this class
 @Table(name = "tours")           // the table is called "tours"
-@Data                            // lombok writes the boring getters and setters for us
+@Getter                          // lombok writes the boring getters for us
+@Setter                          // and the setters too
 @NoArgsConstructor               // lombok also adds the empty constructor the database needs
 public class Tour {
 

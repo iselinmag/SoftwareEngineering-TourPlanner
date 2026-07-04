@@ -1,17 +1,19 @@
 package com.tourplanner.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDate;
 
-// this is the blueprint for one tour log, a single entry someone writes after doing a tour.
-// like one page in a diary, it holds the date, a comment, how hard it was, a rating and so on.
-// each field is a column and each log object becomes one row in the tour_logs table.
-@Entity
-@Table(name = "tour_logs")
-@Data
-@NoArgsConstructor
+// this is the blueprint for one tour.
+// think of it as the shape of one row in the tours table, each field is a column
+// and each tour object we make becomes one row saved in the database.
+@Entity                          // tells the database to build a table out of this class
+@Table(name = "tours")           // the table is called "tours"
+@Getter                          // lombok writes the boring getters for us
+@Setter                          // and the setters too
+@NoArgsConstructor               // lombok also adds the empty constructor the database needs
 public class TourLog {
 
     @Id

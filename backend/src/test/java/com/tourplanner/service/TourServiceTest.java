@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import com.tourplanner.exception.ForbiddenException;
@@ -242,16 +243,63 @@ class TourServiceTest {
 
     @Test
     void searchTours_returnsMatchingToursAsDtos() {
-        Tour tour = sampleTour(2L, "Bike Tour");
+    Tour tour = sampleTour(2L, "Bike Tour");
 
-        when(tourRepository.searchTours("bike")).thenReturn(List.of(tour));
-        when(tourLogRepository.findByTourId(2L)).thenReturn(List.of());
+    when(tourRepository.searchTours("bike")).thenReturn(List.of(tour));
+    when(tourRepository.findAll()).thenReturn(List.of(tour));
+    when(tourLogRepository.findByTourId(2L)).thenReturn(List.of());
 
-        List<TourDTO> result = tourService.searchTours("bike");
+    List<TourDTO> result = tourService.searchTours("bike");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Bike Tour");
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getName()).isEqualTo("Bike Tour");
+}
+
+    @Test
+    void searchTours_matchesComputedChildFriendliness() {
+    Tour tour = sampleTour(10L, "Family Walk");
+
+    TourLog log = new TourLog();
+    log.setId(1L);
+    log.setTour(tour);
+    log.setDifficulty(TourLog.Difficulty.Easy);
+    log.setTotalDistance(3.0);
+    log.setTotalTime("45");
+    log.setRating(5);
+    log.setComment("Nice short route");
+    log.setUser(sampleUser(1L));
+
+    when(tourRepository.findAll()).thenReturn(List.of(tour));
+    when(tourLogRepository.findByTourId(10L)).thenReturn(List.of(log));
+
+    List<TourDTO> result = tourService.searchTours("child friendly");
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getChildFriendliness()).isEqualTo("Child Friendly");
     }
+
+    @Test
+    void searchTours_matchesComputedPopularityLevel() {
+    Tour tour = sampleTour(11L, "Mountain Route");
+
+    TourLog log = new TourLog();
+    log.setId(1L);
+    log.setTour(tour);
+    log.setDifficulty(TourLog.Difficulty.Medium);
+    log.setTotalDistance(8.0);
+    log.setTotalTime("120");
+    log.setRating(5);
+    log.setComment("Great route");
+    log.setUser(sampleUser(1L));
+
+    when(tourRepository.findAll()).thenReturn(List.of(tour));
+    when(tourLogRepository.findByTourId(11L)).thenReturn(List.of(log));
+
+    List<TourDTO> result = tourService.searchTours("popular");
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getPopularityLevel()).isEqualTo("Popular");
+}
 
     @Test
     void toDto_whenNoLogs_setsPopularityZeroAndUnknownLabels() {
@@ -330,18 +378,18 @@ class TourServiceTest {
 
     @Test
     void childFriendliness_whenMediumLogs_isModerate() {
-        Tour tour = sampleTour(8L, "Medium tour");
+    Tour tour = sampleTour(8L, "Medium tour");
 
-        when(tourRepository.findById(8L)).thenReturn(Optional.of(tour));
-        when(tourLogRepository.findByTourId(8L)).thenReturn(List.of(
-                log(TourLog.Difficulty.Medium, 4, 5.0, "01:00"),
-                log(TourLog.Difficulty.Medium, 4, 5.0, "01:00")
-        ));
+    when(tourRepository.findById(8L)).thenReturn(Optional.of(tour));
+    when(tourLogRepository.findByTourId(8L)).thenReturn(List.of(
+            log(TourLog.Difficulty.Medium, 4, 10.0, "03:00"),
+            log(TourLog.Difficulty.Medium, 4, 10.0, "03:00")
+    ));
 
-        TourDTO result = tourService.getTourById(8L);
+    TourDTO result = tourService.getTourById(8L);
 
-        assertThat(result.getChildFriendliness()).isEqualTo("Moderate");
-    }
+    assertThat(result.getChildFriendliness()).isEqualTo("Moderate");
+}
 
     @Test
     void childFriendliness_whenHardLogs_isNotChildFriendly() {
@@ -427,4 +475,23 @@ class TourServiceTest {
         log.setTotalTime(time);
         return log;
     }
+
+    @Test
+    void childFriendliness_easyButVeryLongTour_isNotChildFriendly() {
+    Tour tour = new Tour();
+    tour.setId(1L);
+    TourLog log = new TourLog();
+    log.setDifficulty(TourLog.Difficulty.Easy);   // factor 1: score 1
+    log.setTotalDistance(40.0);                   // factor 2: 40 km -> score 3
+    log.setTotalTime("7h");                       // factor 3: 420 min -> score 3
+    log.setRating(4);
+
+    when(tourLogRepository.findByTourId(1L)).thenReturn(List.of(log));
+    when(tourRepository.findById(1L)).thenReturn(Optional.of(tour));
+
+    TourDTO dto = tourService.getTourById(1L);
+
+    // (1 + 3 + 3) / 3 = 2.33 -> Moderate, not Child Friendly despite "Easy"
+    assertEquals("Moderate", dto.getChildFriendliness());
+}
 }
